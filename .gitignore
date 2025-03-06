@@ -401,3 +401,6 @@ FodyWeavers.xsd
 
 # Build Folder
 build
+
+# Roms Folder
+roms
