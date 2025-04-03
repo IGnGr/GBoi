@@ -27,4 +27,6 @@ public:
 	void printContent(int from, int until);
 	void printHeader();
 	std::vector<uint8_t> getContent() const { return m_content; }
+	uint8_t getROMSize() const { return m_ROMSize; }
+	uint8_t getCartridgeType() const { return m_cartridgeType; }
 };

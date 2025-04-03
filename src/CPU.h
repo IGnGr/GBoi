@@ -9,8 +9,8 @@
 
 
 class InstructionSet;
-
-class CPU
+ 
+class CPU : public std::enable_shared_from_this<CPU>
 {
 
 
@@ -32,8 +32,10 @@ class CPU
 private:
 	//Program Counter
 	uint16_t m_PC = 0;
+
+
 	//Stack Pointer
-	uint16_t m_SP = 0;
+	Register m_SP;
 
 	//Accumulator & Flags
 	Register m_AF;
@@ -58,15 +60,15 @@ private:
 
 	uint8_t m_currentInstruction = 0;
 
-	std::unique_ptr<InstructionSet> m_instructionSet;
-	std::shared_ptr<MMU> m_MMU;
+	std::shared_ptr<InstructionSet> m_instructionSet;
+	std::shared_ptr<MMU> m_mmu;
 	std::shared_ptr<GameROM> m_game;
 
 
 
 public:
     CPU();
-    CPU(std::shared_ptr<GameROM> game);
+    CPU(std::shared_ptr<MMU> mmu);
     ~CPU();
 	void execute();
 	void fetchNextInstruction();
@@ -75,7 +77,7 @@ public:
 
 	enum RegisterType
 	{
-		A, F, B, C, D, E, H, L, AF, BC, DE, HL
+		A, F, B, C, D, E, H, L, AF, BC, DE, HL, SP
 	};
 
 
@@ -88,4 +90,9 @@ public:
 	T getRegisterValue(RegisterType regType) const;
 	void setRegisterValue(RegisterType regType, uint16_t value);
 	void setRegisterValue(RegisterType regType, uint8_t value);
+	void setCarryFlag(bool value) { m_carryFlag = value; }
+	void setZeroFlag(bool value) { m_zeroFlag = value; }
+	void setHalfCarryFlag(bool value) { m_halfCarryFlag = value; }
+	void setSubtractFlag(bool value) { m_subtractFlag = value; }
+
 };

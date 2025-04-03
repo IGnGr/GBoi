@@ -3,23 +3,18 @@
 #include <iostream>
 #include "InstructionSet.h"
 
-CPU::CPU()
+CPU::CPU() 
 {
+
 }
 
 
 
-CPU::CPU(std::shared_ptr<GameROM> game)
+CPU::CPU(std::shared_ptr<MMU> mmu) : m_mmu(mmu)
 {
-	m_game = std::move(game);
-	m_PC = 0x100;
 
-	if (!m_MMU)
-	{
-		m_MMU = std::make_shared<MMU>(m_game);
-	}
 
-	//m_instructionSet = std::make_unique<InstructionSet>(shared_from_this(), m_MMU);
+	//mum_instructionSet = std::make_unique<InstructionSet>(shared_from_this(), m_MMU);
 
 }
 
@@ -40,7 +35,7 @@ void CPU::execute()
 void CPU::fetchNextInstruction()
 {
 	m_PC++;
-	m_currentInstruction = m_MMU->readByte(m_PC);
+	m_currentInstruction = m_mmu->readByte(m_PC);
 }
 
 
@@ -48,6 +43,7 @@ void CPU::decodeNextInstruction()
 {
 
 }
+
 
 void CPU::executeNextInstruction()
 {
@@ -67,20 +63,18 @@ void CPU::initialize()
 	setRegisterValue(H, (uint8_t)0);
 	setRegisterValue(L, (uint8_t)0);
 	setRegisterValue(F, (uint8_t)0);
-	m_SP = 0;
-	m_PC = 0;
+	setRegisterValue(SP, (uint16_t)0);
+
+	m_PC = 0x100;
 	m_clock = 0;
 	m_zeroFlag = false;
 	m_carryFlag = false;
 	m_halfCarryFlag = false;
 	m_subtractFlag = false;
+	m_instructionSet = std::make_shared<InstructionSet>(shared_from_this(), m_mmu);
 
 }
 
-
-void CPU::getRegister(Register reg)
-{
-}
 
 template <typename T>
 T CPU::getRegisterValue(RegisterType regType) const
@@ -97,6 +91,8 @@ T CPU::getRegisterValue(RegisterType regType) const
 			return m_DE.value;
 		case HL:
 			return m_HL.value;
+		case SP:
+			return m_SP.value;
 		default:
 			throw std::invalid_argument("Invalid register type");
 		}
@@ -146,6 +142,9 @@ void CPU::setRegisterValue(RegisterType regType, uint16_t value)
 		break;
 	case HL:
 		m_HL.value = value;
+		break;
+	case SP:
+		m_SP.value = value;
 		break;
 	default:
 		throw std::invalid_argument("Invalid register type");
@@ -199,7 +198,7 @@ void CPU::printState() const
 	std::cout << "BC			 : " << getRegisterValue<uint16_t>(BC) << std::endl;
 	std::cout << "DE			 : " << getRegisterValue<uint16_t>(DE) << std::endl;
 	std::cout << "HL			 : " << getRegisterValue<uint16_t>(HL) << std::endl;
-	std::cout << "SP			 : " << m_SP << std::endl;
+	std::cout << "SP			 : " << getRegisterValue<uint16_t>(SP) << std::endl;
 	std::cout << "PC			 : " << m_PC << std::endl;
 	std::cout << "Clock	  		 : " << m_clock << std::endl;
 	std::cout << "Zero Flag      : " << m_zeroFlag << std::endl;
