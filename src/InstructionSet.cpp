@@ -40,93 +40,130 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         ld(Reg::B, (uint8_t) data);
         break;
     case 0x07:
-        rlca();
-        break;/*
+        rotateLeft(Reg::A, true);
+        break;
     case 0x08:
-        ld(Reg::SP, );
+        ldAddress((uint16_t) data, Reg::SP);
         break;
     case 0x09:
-        add_hl_bc();
+        add(Reg::HL, Reg::BC);
         break;
     case 0x0A:
-        ld_a_bc();
+        ldAddress(Reg::A, Reg::BC);
         break;
     case 0x0B:
-        dec_bc();
+        dec(Reg::BC);
         break;
     case 0x0C:
-        inc_c();
+        inc(Reg::C);
         break;
     case 0x0D:
-        dec_c();
+        dec(Reg::C);
         break;
     case 0x0E:
-        ld_c_n();
+        ld(Reg::C, (uint8_t) data);
         break;
     case 0x0F:
-        rrca();
-        break;*/
+        rotateRight(Reg::A, false);
+        break;
     case 0x10:
         stop();
         break;
     case 0x11:
-        ld(Reg::DE, data);        
+        ld(Reg::DE, (uint16_t) data);        
         break;
-        /*
     case 0x12:
-        ld_de_a();
+        ldAddress(Reg::DE, Reg::A);
         break;
     case 0x13:
-        inc_de();
+        inc(Reg::DE);
         break;
     case 0x14:
-        inc_d();
+        inc(Reg::D);
         break;
     case 0x15:
-        dec_d();
+        dec(Reg::D);
         break;
     case 0x16:
-        ld_d_n();
+        ld(Reg::D, (uint8_t)data);
         break;
     case 0x17:
-        rla();
+        rotateLeft(Reg::A, false);
         break;
     case 0x18:
-        jr_n();
+        jr((int8_t) data);
         break;
     case 0x19:
-        add_hl_de();
+        add(Reg::HL, Reg::DE);
+        break;
+    case 0x1A:
+        ldAddress(Reg::A, Reg::DE);
+        break;
+    case 0x1B:
+        dec(Reg::DE);
+        break;
+    case 0x1C:
+        inc(Reg::E);
+        break;
+    case 0x1D:
+        dec(Reg::E);
+        break;
+    case 0x1E:
+        ld(Reg::E, (uint8_t)data);
+        break;
+    case 0x1F:
+        rotateRight(Reg::A, false);
         break;
     case 0x20:
-        jr_nz();
+        jr(!m_cpu->getZeroFlag(),(uint8_t) data);
         break;
     case 0x21:
-        ld_hl_nn();
-        break;
+        ldAddress(Reg::DE, Reg::A);
+        break; 
     case 0x22:
-        ldi_hl_a();
+        ldAddress(Reg::HL,Reg::A);
+        inc(Reg::HL);
         break;
     case 0x23:
-        inc_hl();
+        inc(Reg::HL);
         break;
     case 0x24:
-        inc_h();
+        inc(Reg::H);
         break;
     case 0x25:
-        dec_h();
+        dec(Reg::H);
         break;
     case 0x26:
-        ld_h_n();
+        ld(Reg::H, (uint8_t) data);
         break;
     case 0x27:
-        daa();
+        decimalAdjustAccumulator();
         break;
     case 0x28:
-        jr_z();
+        jr(m_cpu->getZeroFlag(),(int8_t) data);
         break;
     case 0x29:
-        add_hl_hl();
+        add(Reg::HL, Reg::HL);
         break;
+    case 0x2A:
+        ldAddress(Reg::A, Reg::HL);
+        break;
+    case 0x2B:
+        dec(Reg::HL);
+        break;
+    case 0x2C:
+        inc(Reg::L);
+        break;
+    case 0x2D:
+        dec(Reg::L);
+        break;
+    case 0x2E:
+        ld(Reg::L, (uint8_t) data);
+        break;
+    case 0x2F:
+        cpl();
+        break;
+        /*
     case 0x30:
         jr_nc();
         break;
@@ -706,7 +743,6 @@ void InstructionSet::ld(Reg regTo, Reg regFrom)
         m_cpu->setRegisterValue(regTo, m_cpu->getRegisterValue<uint8_t>(regFrom));
 }
 
-
 void InstructionSet::ldAddress(Reg regAddress, Reg regValue)
 {
     if (regValue == Reg::AF || regValue == Reg::BC || regValue == Reg::DE || regValue == Reg::HL || regValue == Reg::SP)
@@ -714,6 +750,7 @@ void InstructionSet::ldAddress(Reg regAddress, Reg regValue)
     else
         m_mmu->setWord(m_cpu->getRegisterValue<uint16_t>(regAddress), m_cpu->getRegisterValue<uint8_t>(regValue));
 }
+
 
 void InstructionSet::ldAddress(uint8_t address, Reg regValue)
 {
@@ -741,23 +778,52 @@ void InstructionSet::ldh(uint8_t c , Reg A)
 }
 
 
-void InstructionSet::rlca()
-{
-    uint8_t A = m_cpu->getRegisterValue<uint8_t>(Reg::A);
-    m_cpu->setCarryFlag(A & 0x80);
-    //Shift A left by 1 bit and set the least significant bit to the value of the carry flag.
-    A = (A << 1) | (A >> 7);
-    m_cpu->setRegisterValue(Reg::A, A);
-
-}
-
-
 void InstructionSet::inc(Reg reg)
 {
 	if (reg == Reg::AF || reg == Reg::BC || reg == Reg::DE || reg == Reg::HL|| reg == Reg::SP)
 		m_cpu->setRegisterValue(reg, static_cast<uint16_t>(m_cpu->getRegisterValue<uint16_t>(reg) + 1));
 	else
         m_cpu->setRegisterValue(reg, static_cast<uint8_t> (m_cpu->getRegisterValue<uint8_t>(reg) + 1));
+}
+
+void InstructionSet::rotateLeft(Reg reg, bool setCarryFlag)
+{
+    if (reg == Reg::AF || reg == Reg::BC || reg == Reg::DE || reg == Reg::HL || reg == Reg::SP)
+    {
+        uint16_t regValue = m_cpu->getRegisterValue<uint16_t>(reg);
+        if(setCarryFlag) m_cpu->setCarryFlag(regValue & 0x8000);
+        //Shift A left by 1 bit and set the least significant bit to the value of the carry flag.
+        regValue = (regValue << 1) | (regValue >> 15);
+        m_cpu->setRegisterValue(reg, regValue);
+    }
+    else
+    {
+        uint8_t regValue = m_cpu->getRegisterValue<uint8_t>(reg);
+        if(setCarryFlag) m_cpu->setCarryFlag(regValue & 0x08);
+        //Shift A left by 1 bit and set the least significant bit to the value of the carry flag.
+        regValue = (regValue << 1) | (regValue >> 7);
+        m_cpu->setRegisterValue(reg, regValue);
+    }
+}
+
+void InstructionSet::rotateRight(Reg reg, bool setCarryFlag)
+{
+    if (reg == Reg::AF || reg == Reg::BC || reg == Reg::DE || reg == Reg::HL || reg == Reg::SP)
+    {
+        uint16_t regValue = m_cpu->getRegisterValue<uint16_t>(reg);
+        if(setCarryFlag) m_cpu->setCarryFlag(regValue & 0x01);
+        //Shift A right by 1 bit and set the most significant bit to the value of the carry flag.
+        regValue = (regValue >> 1) | (regValue << 15);
+        m_cpu->setRegisterValue(reg, regValue);
+    }
+    else
+    {
+        uint8_t regValue = m_cpu->getRegisterValue<uint8_t>(reg);
+        if(setCarryFlag) m_cpu->setCarryFlag(regValue & 0x01);
+        //Shift A right by 1 bit and set the most significant bit to the value of the carry flag.
+        regValue = (regValue >> 1) | (regValue << 7);
+        m_cpu->setRegisterValue(reg, regValue);
+    }
 }
 
 
@@ -785,16 +851,65 @@ void InstructionSet::bit()
 {
 }
 
-void InstructionSet::add()
+void InstructionSet::add(Reg reg1, Reg reg2)
 {
+    if (reg1 == Reg::AF || reg1 == Reg::BC || reg1 == Reg::DE || reg1 == Reg::HL || reg1 == Reg::SP)
+    {
+        uint16_t regValue = m_cpu->getRegisterValue<uint16_t>(reg1) + m_cpu->getRegisterValue<uint16_t>(reg2);
+        m_cpu->setRegisterValue(reg1, regValue);
+
+        uint16_t reg1Value = m_cpu->getRegisterValue<uint16_t>(reg1);
+        uint16_t reg2Value = m_cpu->getRegisterValue<uint16_t>(reg2);
+
+        //Bit 15 overflow
+        m_cpu->setCarryFlag(0x8000 && reg1Value && reg2Value);
+        //Bit 11 overflow
+        m_cpu->setHalfCarryFlag(0x0800 && reg1Value && reg2Value);
+    }
+        
+    else
+    {
+        uint8_t regValue = m_cpu->getRegisterValue<uint8_t>(reg1) + m_cpu->getRegisterValue<uint8_t>(reg2);
+        m_cpu->setRegisterValue(reg1, regValue);
+
+        uint8_t reg1Value = m_cpu->getRegisterValue<uint8_t>(reg1);
+        uint8_t reg2Value = m_cpu->getRegisterValue<uint8_t>(reg2);
+
+        //Bit 7 overflow
+        m_cpu->setCarryFlag(0x80 && reg1Value && reg2Value);
+        //Bit 3 overflow
+        m_cpu->setHalfCarryFlag(0x08 && reg1Value && reg2Value);
+    }
 }
+
 
 void InstructionSet::adc()
 {
 }
 
-void InstructionSet::sub()
+void InstructionSet::sub(Reg reg)
 {
+    if (reg == Reg::AF || reg == Reg::BC || reg == Reg::DE || reg == Reg::HL || reg == Reg::SP)
+        throw std::invalid_argument("16 bit register substraction not allowed");
+
+
+    sub(m_cpu->getRegisterValue<uint8_t>(reg));
+
+}
+void InstructionSet::sub(uint8_t value)
+{
+    
+    uint8_t newVal = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+
+    m_cpu->setSubtractFlag(true);
+    m_cpu->setZeroFlag(newVal == 0x0);
+    m_cpu->setHalfCarryFlag( (value & 0x0F) > (newVal & 0x0F));
+    m_cpu->setCarryFlag(value > newVal);
+
+    newVal -= value;
+    m_cpu->setRegisterValue(Reg::A, newVal);
+
+
 }
 
 void InstructionSet::sbc()
@@ -849,12 +964,20 @@ void InstructionSet::srl()
 {
 }
 
-void InstructionSet::jp()
+void InstructionSet::jp(Reg reg)
 {
 }
 
-void InstructionSet::jr()
+void InstructionSet::jr(bool cc, int8_t destination)
 {
+    if (cc) 
+        jr(destination);
+}
+
+void InstructionSet::jr(int8_t offset)
+{
+    assert(offset >= -128 && offset <= 127);
+    m_cpu->setPC(m_cpu->getPC() + offset);
 }
 
 void InstructionSet::call()
@@ -873,8 +996,22 @@ void InstructionSet::rst()
 {
 }
 
-void InstructionSet::daa()
+void InstructionSet::decimalAdjustAccumulator()
 {
+    uint8_t adjustment = 0;
+
+    if (m_cpu->getSubstractFlag())
+    {
+        if (m_cpu->getHalfCarryFlag()) adjustment += 0x6;
+        if (m_cpu->getCarryFlag()) adjustment += 0x60;
+        sub()
+    }
+    else
+    {
+
+    }
+
+
 }
 
 void InstructionSet::ccf()

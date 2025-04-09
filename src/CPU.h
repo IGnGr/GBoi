@@ -84,15 +84,20 @@ public:
 
     void printState() const;
 	void initialize();
-	void getRegister(Register reg);
 	uint16_t getPC() const { return m_PC; }
 	template <typename T>
 	T getRegisterValue(RegisterType regType) const;
+	uint16_t getZeroFlag() const { return m_zeroFlag; }
+	uint16_t getCarryFlag() const { return m_carryFlag; }
+	uint16_t getHalfCarryFlag() const { return m_halfCarryFlag; }
+	uint16_t getSubstractFlag() const { return m_subtractFlag; }
+
 	void setRegisterValue(RegisterType regType, uint16_t value);
 	void setRegisterValue(RegisterType regType, uint8_t value);
 	void setCarryFlag(bool value) { m_carryFlag = value; }
 	void setZeroFlag(bool value) { m_zeroFlag = value; }
 	void setHalfCarryFlag(bool value) { m_halfCarryFlag = value; }
 	void setSubtractFlag(bool value) { m_subtractFlag = value; }
+	void setPC(uint16_t value) { m_PC = value; }
 
 };
