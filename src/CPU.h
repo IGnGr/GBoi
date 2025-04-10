@@ -45,18 +45,13 @@ private:
 	Register m_DE;
 	Register m_HL;
 
-
-
-	//Clock
 	uint8_t m_clock = 0;
-	//Zero Flag
+
 	bool m_zeroFlag = false;
-	//Carry Flag
 	bool m_carryFlag = false;
-	//Half Carry Flag
 	bool m_halfCarryFlag = false;
-	//Subtract Flag
 	bool m_subtractFlag = false;
+	bool m_interruptsFlag = false;
 
 	uint8_t m_currentInstruction = 0;
 
@@ -92,6 +87,7 @@ public:
 	uint16_t getCarryFlag() const { return m_carryFlag; }
 	uint16_t getHalfCarryFlag() const { return m_halfCarryFlag; }
 	uint16_t getSubstractFlag() const { return m_subtractFlag; }
+	uint16_t getInterruptsFlag() const { return m_interruptsFlag; }
 
 	RegisterType getHi(RegisterType regType) const;
 	RegisterType getLo(RegisterType regType) const;
@@ -102,6 +98,7 @@ public:
 	void setZeroFlag(bool value) { m_zeroFlag = value; }
 	void setHalfCarryFlag(bool value) { m_halfCarryFlag = value; }
 	void setSubtractFlag(bool value) { m_subtractFlag = value; }
+	void setInterruptsFlag(bool value) { m_interruptsFlag = value; }
 	void setPC(uint16_t value) { m_PC = value; }
 
 };
