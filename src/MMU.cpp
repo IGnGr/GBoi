@@ -90,6 +90,7 @@ void MMU::setWord(uint16_t address, uint16_t value)
 
 }
 
-void MMU::setWord(uint16_t address, uint8_t value)
+void MMU::setByte(uint16_t address, uint8_t value)
 {
 }
+

@@ -46,7 +46,7 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         ldAddress((uint16_t) data, Reg::SP);
         break;
     case 0x09:
-        add(Reg::HL, Reg::BC);
+        add(Reg::HL, Reg::BC, false);
         break;
     case 0x0A:
         ldAddress(Reg::A, Reg::BC);
@@ -94,7 +94,7 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         jr((int8_t) data);
         break;
     case 0x19:
-        add(Reg::HL, Reg::DE);
+        add(Reg::HL, Reg::DE, false);
         break;
     case 0x1A:
         ldAddress(Reg::A, Reg::DE);
@@ -137,13 +137,13 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         ld(Reg::H, (uint8_t) data);
         break;
     case 0x27:
-        decimalAdjustAccumulator();
+        daa();
         break;
     case 0x28:
         jr(m_cpu->getZeroFlag(),(int8_t) data);
         break;
     case 0x29:
-        add(Reg::HL, Reg::HL);
+        add(Reg::HL, Reg::HL, false);
         break;
     case 0x2A:
         ldAddress(Reg::A, Reg::HL);
@@ -163,408 +163,460 @@ void InstructionSet::executeInstruction(uint8_t opCode)
     case 0x2F:
         cpl();
         break;
-        /*
     case 0x30:
-        jr_nc();
+        jr(!m_cpu->getCarryFlag(), (int8_t) data);
         break;
     case 0x31:
-        ld_sp_nn();
+        ld(Reg::SP, (uint16_t) data);
         break;
     case 0x32:
-        ldd_hl_a();
+        ldAddress(Reg::HL, Reg::A);
+        dec(Reg::HL);
         break;
     case 0x33:
-        inc_sp();
+        inc(Reg::SP);
         break;
     case 0x34:
-        inc_hl();
+        incAddress(Reg::HL);
         break;
     case 0x35:
-        dec_hl();
+        dec(Reg::HL);
         break;
     case 0x36:
-        ld_hl_n();
+        ldAddress(Reg::HL, (uint8_t)data);
         break;
     case 0x37:
         scf();
         break;
     case 0x38:
-        jr_c();
+        jr(m_cpu->getCarryFlag(), (int8_t)data);
         break;
     case 0x39:
-        add_hl_sp();
+        add(Reg::HL, Reg::SP, false);
+        break;
+    case 0x3A:
+        ldAddress(Reg::A, Reg::HL);
+        dec(Reg::HL);
+        break;
+    case 0x3B:
+        dec(Reg::SP);
+        break;
+    case 0x3C:
+        inc(Reg::A);
+        break;
+    case 0x3D:
+        dec(Reg::A);
+        break;
+    case 0x3E:
+        ld(Reg::A, (uint8_t) data);
+        break;
+    case 0x3F:
+        ccf();
         break;
     case 0x40:
-        ld_b_b();
+        ld(Reg::B, Reg::B);
         break;
     case 0x41:
-        ld_c_b();
+        ld(Reg::C, Reg::B);
         break;
     case 0x42:
-        ld_d_b();
+        ld(Reg::D, Reg::B);
         break;
     case 0x43:
-        ld_e_b();
+        ld(Reg::E, Reg::B);
         break;
     case 0x44:
-        ld_h_b();
+        ld(Reg::H, Reg::B);
         break;
     case 0x45:
-        ld_l_b();
+        ld(Reg::H, Reg::B);        
         break;
     case 0x46:
-        ld_hl_b();
+        ldAddress(Reg::B, Reg::HL);
         break;
     case 0x47:
-        ld_a_b();
+        ld(Reg::B, Reg::A);
         break;
     case 0x48:
-        ld_b_c();
+        ld(Reg::C, Reg::B);
         break;
     case 0x49:
-        ld_c_c();
+        ld(Reg::C, Reg::C);
         break;
     case 0x4A:
-        ld_d_c();
+        ld(Reg::C, Reg::D);
         break;
     case 0x4B:
-        ld_e_c();
+        ld(Reg::C, Reg::E);
         break;
     case 0x4C:
-        ld_h_c();
+        ld(Reg::C, Reg::H);
         break;
     case 0x4D:
-        ld_l_c();
+        ld(Reg::C, Reg::L);
         break;
     case 0x4E:
-        ld_hl_c();
+        ldAddress(Reg::C, Reg::HL);
         break;
     case 0x4F:
-        ld_a_c();
+        ld(Reg::C, Reg::A);
         break;
     case 0x50:
-        ld_d_b();
+        ld(Reg::D, Reg::B);
         break;
     case 0x51:
-        ld_d_c();
+        ld(Reg::D, Reg::C);
         break;
     case 0x52:
-        ld_d_d();
+        ld(Reg::D, Reg::D);
         break;
     case 0x53:
-        ld_d_e();
+        ld(Reg::D, Reg::E);
         break;
     case 0x54:
-        ld_d_h();
+        ld(Reg::D, Reg::H);
         break;
     case 0x55:
-        ld_d_l();
+        ld(Reg::D, Reg::L);
         break;
     case 0x56:
-        ld_hl_d();
+        ldAddress(Reg::D, Reg::HL);
         break;
     case 0x57:
-        ld_a_d();
+        ld(Reg::D, Reg::A);
         break;
     case 0x58:
-        ld_e_b();
+        ld(Reg::E, Reg::B);
         break;
     case 0x59:
-        ld_e_c();
+        ld(Reg::E, Reg::C);
         break;
     case 0x5A:
-        ld_e_d();
+        ld(Reg::E, Reg::D);
         break;
     case 0x5B:
-        ld_e_e();
+        ld(Reg::E, Reg::E);
         break;
     case 0x5C:
-        ld_e_h();
+        ld(Reg::E, Reg::H);
         break;
     case 0x5D:
-        ld_e_l();
+        ld(Reg::E, Reg::L);
         break;
     case 0x5E:
-        ld_hl_e();
+        ldAddress(Reg::E, Reg::HL);
         break;
     case 0x5F:
-        ld_e_a();
+        ld(Reg::E, Reg::A);
         break;
     case 0x60:
-        ld_h_b();
+        ld(Reg::H, Reg::B);
         break;
     case 0x61:
-        ld_h_c();
+        ld(Reg::H, Reg::C);
         break;
     case 0x62:
-        ld_h_d();
+        ld(Reg::H, Reg::D);
         break;
     case 0x63:
-        ld_h_e();
+        ld(Reg::H, Reg::E);
         break;
     case 0x64:
-        ld_h_h();
+        ld(Reg::H, Reg::H);
         break;
     case 0x65:
-        ld_h_l();
+        ld(Reg::H, Reg::L);
         break;
     case 0x66:
-        ld_hl_h();
+        ldAddress(Reg::H, Reg::HL);
         break;
     case 0x67:
-        ld_a_h();
+        ld(Reg::H, Reg::A);
         break;
     case 0x68:
-        ld_l_b();
+        ld(Reg::L, Reg::B);
         break;
     case 0x69:
-        ld_l_c();
+        ld(Reg::L, Reg::C);
+        break;
+    case 0x6A:
+        ld(Reg::L, Reg::D);
+        break;
+    case 0x6B:
+        ld(Reg::L, Reg::E);
+        break;
+    case 0x6C:
+        ld(Reg::L, Reg::H);
+        break;
+    case 0x6D:
+        ld(Reg::L, Reg::L);
+        break;
+    case 0x6E:
+        ldAddress(Reg::L, Reg::HL);
+        break;
+    case 0x6F:
+        ld(Reg::L, Reg::A);
         break;
     case 0x70:
-        ld_hl_b();
+        ldAddress(Reg::HL, Reg::B);
         break;
     case 0x71:
-        ld_hl_c();
+        ldAddress(Reg::HL, Reg::C);
         break;
     case 0x72:
-        ld_hl_d();
+        ldAddress(Reg::HL, Reg::D);
         break;
     case 0x73:
-        ld_hl_e();
+        ldAddress(Reg::HL, Reg::E);
         break;
     case 0x74:
-        ld_hl_h();
+        ldAddress(Reg::HL, Reg::H);
         break;
     case 0x75:
-        ld_hl_l();
+        ldAddress(Reg::HL, Reg::L);
         break;
     case 0x76:
         halt();
         break;
     case 0x77:
-        ld_hl_a();
+        ldAddress(Reg::HL, Reg::A);
         break;
     case 0x78:
-        ld_a_b();
+        ld(Reg::A, Reg::B);
         break;
     case 0x79:
-        ld_a_c();
+        ld(Reg::A, Reg::C);
+        break;
+    case 0x7A:
+        ld(Reg::A, Reg::D);
+        break;
+    case 0x7B:
+        ld(Reg::A, Reg::E);
+        break;
+    case 0x7C:
+        ld(Reg::A, Reg::H);
+        break;
+    case 0x7D:
+        ld(Reg::A, Reg::L);
+        break;
+    case 0x7E:
+        ldAddress(Reg::A, Reg::HL);
+        break;
+    case 0x7F:
+        ld(Reg::A, Reg::A);
         break;
     case 0x80:
-        add_a_b();
+        add(Reg::A, Reg::B, false);
         break;
     case 0x81:
-        add_a_c();
+        add(Reg::A, Reg::C, false);
         break;
     case 0x82:
-        add_a_d();
+        add(Reg::A, Reg::D, false);
         break;
     case 0x83:
-        add_a_e();
+        add(Reg::A, Reg::E, false);
         break;
     case 0x84:
-        add_a_h();
+        add(Reg::A, Reg::H, false);
         break;
     case 0x85:
-        add_a_l();
+        add(Reg::A, Reg::L, false);
         break;
     case 0x86:
-        add_a_hl();
+        add(Reg::A, m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)), false);
         break;
     case 0x87:
-        add_a_a();
+        add(Reg::A, Reg::A, false);
         break;
     case 0x88:
-        adc_a_b();
+        add(Reg::A, Reg::B, true);
         break;
     case 0x89:
-        adc_a_c();
+        add(Reg::A, Reg::C, true);
         break;
     case 0x8A:
-        adc_a_d();
+        add(Reg::A, Reg::D, true);
         break;
     case 0x8B:
-        adc_a_e();
+        add(Reg::A, Reg::E, true);
         break;
     case 0x8C:
-        adc_a_h();
+        add(Reg::A, Reg::H, true);
         break;
     case 0x8D:
-        adc_a_l();
+        add(Reg::A, Reg::L, true);
         break;
     case 0x8E:
-        adc_a_hl();
+        add(Reg::A, m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)), true);
         break;
     case 0x8F:
-        adc_a_a();
+        add(Reg::A, Reg::A, true);
         break;
     case 0x90:
-        sub_b();
+        sub(Reg::A, false);
         break;
     case 0x91:
-        sub_c();
+        sub(Reg::C, false);
         break;
     case 0x92:
-        sub_d();
+        sub(Reg::D, false);
         break;
     case 0x93:
-        sub_e();
+        sub(Reg::E, false);
         break;
     case 0x94:
-        sub_h();
+        sub(Reg::H, false);
         break;
     case 0x95:
-        sub_l();
+        sub(Reg::L, false);
         break;
     case 0x96:
-        sub_hl();
+        sub(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)), false);
         break;
     case 0x97:
-        sub_a();
+        sub(Reg::A, false);
         break;
     case 0x98:
-        sbc_a_b();
+        sub(Reg::B, true);
         break;
     case 0x99:
-        sbc_a_c();
+        sub(Reg::C, true);
         break;
     case 0x9A:
-        sbc_a_d();
+        sub(Reg::D, true);
         break;
     case 0x9B:
-        sbc_a_e();
+        sub(Reg::E, true);
         break;
     case 0x9C:
-        sbc_a_h();
+        sub(Reg::H, true);
         break;
     case 0x9D:
-        sbc_a_l();
+        sub(Reg::L, true);
         break;
     case 0x9E:
-        sbc_a_hl();
+        sub(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)), true);
         break;
     case 0x9F:
-        sbc_a_a();
+        sub(Reg::A, true);
         break;
     case 0xA0:
-        and_b();
+        andOp(Reg::B);
         break;
     case 0xA1:
-        and_c();
+        andOp(Reg::C);
         break;
     case 0xA2:
-        and_d();
+        andOp(Reg::D);
         break;
     case 0xA3:
-        and_e();
+        andOp(Reg::E);
         break;
     case 0xA4:
-        and_h();
+        andOp(Reg::H);
         break;
     case 0xA5:
-        and_l();
+        andOp(Reg::L);
         break;
     case 0xA6:
-        and_hl();
+        andOp(Reg::B);
         break;
     case 0xA7:
-        and_a();
+        andOp(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)));
         break;
     case 0xA8:
-        xor_b();
+        xorOp(Reg::B);
         break;
     case 0xA9:
-        xor_c();
+        xorOp(Reg::C);
         break;
     case 0xAA:
-        xor_d();
+        xorOp(Reg::D);
         break;
     case 0xAB:
-        xor_e();
+        xorOp(Reg::E);
         break;
     case 0xAC:
-        xor_h();
+        xorOp(Reg::H);
         break;
     case 0xAD:
-        xor_l();
+        xorOp(Reg::L);
         break;
     case 0xAE:
-        xor_hl();
+        xorOp(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)));
         break;
-    case 0xAE:
-    xor_hl();
-    break;
     case 0xAF:
-        xor_a();
+        xorOp(Reg::A);
         break;
     case 0xB0:
-        or_b();
+        orOp(Reg::B);
         break;
     case 0xB1:
-        or_c();
+        orOp(Reg::C);
         break;
     case 0xB2:
-        or_d();
+        orOp(Reg::D);
         break;
     case 0xB3:
-        or_e();
+        orOp(Reg::E);
         break;
     case 0xB4:
-        or_h();
+        orOp(Reg::H);
         break;
     case 0xB5:
-        or_l();
+        orOp(Reg::L);
         break;
     case 0xB6:
-        or_hl();
+        orOp(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)));
         break;
     case 0xB7:
-        or_a();
+        orOp(Reg::A);
         break;
     case 0xB8:
-        cp_b();
+        cp(Reg::B);
         break;
     case 0xB9:
-        cp_c();
+        cp(Reg::C);
         break;
     case 0xBA:
-        cp_d();
+        cp(Reg::D);
         break;
     case 0xBB:
-        cp_e();
+        cp(Reg::E);
         break;
     case 0xBC:
-        cp_h();
+        cp(Reg::H);
         break;
     case 0xBD:
-        cp_l();
+        cp(Reg::L);
         break;
     case 0xBE:
-        cp_hl();
+        cp(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)));
         break;
     case 0xBF:
-        cp_a();
+        cp(Reg::A);
         break;
     case 0xC0:
-        ret_nz();
+        ret(!m_cpu->getZeroFlag());
         break;
     case 0xC1:
-        pop_bc();
+        pop(Reg::BC);
         break;
     case 0xC2:
-        jp_nz_nn();
+        jp(!m_cpu->getZeroFlag(), m_mmu->readWord((uint16_t) data));
         break;
     case 0xC3:
-        jp_nn();
+        jp(true, m_mmu->readWord((uint16_t)data));
         break;
     case 0xC4:
-        call_nz_nn();
+        call(!m_cpu->getZeroFlag(), m_mmu->readWord((uint16_t)data));
         break;
     case 0xC5:
-        push_bc();
+        push(Reg::BC);
         break;
     case 0xC6:
-        add_a_n();
+        add(Reg::A, (uint8_t) data, false);
         break;
     case 0xC7:
         rst_00();
@@ -592,7 +644,7 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         break;
     case 0xCF:
         rst_08();
-        break;
+        break;/*
     case 0xD0:
         ret_nc();
         break;
@@ -752,6 +804,12 @@ void InstructionSet::ldAddress(Reg regAddress, Reg regValue)
 }
 
 
+void InstructionSet::ldAddress(Reg regAddress, uint8_t value)
+{
+    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(regAddress), value);
+}
+
+
 void InstructionSet::ldAddress(uint8_t address, Reg regValue)
 {
     m_mmu->setWord(address, m_cpu->getRegisterValue<uint16_t>(regValue));
@@ -784,6 +842,12 @@ void InstructionSet::inc(Reg reg)
 		m_cpu->setRegisterValue(reg, static_cast<uint16_t>(m_cpu->getRegisterValue<uint16_t>(reg) + 1));
 	else
         m_cpu->setRegisterValue(reg, static_cast<uint8_t> (m_cpu->getRegisterValue<uint8_t>(reg) + 1));
+}
+
+void InstructionSet::incAddress(Reg reg)
+{
+    uint8_t value = m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(reg));
+    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), value + 1);
 }
 
 void InstructionSet::rotateLeft(Reg reg, bool setCarryFlag)
@@ -835,50 +899,103 @@ void InstructionSet::dec(Reg reg)
         m_cpu->setRegisterValue(reg, static_cast<uint8_t> (m_cpu->getRegisterValue<uint8_t>(reg) - 1));
 }
 
-void InstructionSet::andOp()
+void InstructionSet::andOp(Reg reg)
 {
+    uint8_t A = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+    andOp(m_cpu->getRegisterValue<uint8_t>(reg));
 }
 
-void InstructionSet::orOp()
+void InstructionSet::andOp(uint8_t value)
 {
+    uint8_t A = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+    uint8_t newA = A & value;
+    m_cpu->setRegisterValue(Reg::A, newA);
+
+    m_cpu->setZeroFlag(newA == 0x0);
+    m_cpu->setSubtractFlag(false);
+    m_cpu->setHalfCarryFlag(true);
+    m_cpu->setCarryFlag(false);
 }
 
-void InstructionSet::xorOp()
+
+void InstructionSet::orOp(Reg reg)
 {
+    uint8_t A = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+    orOp(m_cpu->getRegisterValue<uint8_t>(reg));
+}
+
+void InstructionSet::orOp(uint8_t value)
+{
+    uint8_t A = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+    uint8_t newA = A | value;
+    m_cpu->setRegisterValue(Reg::A, newA);
+
+    m_cpu->setZeroFlag(newA == 0x0);
+    m_cpu->setSubtractFlag(false);
+    m_cpu->setHalfCarryFlag(false);
+    m_cpu->setCarryFlag(false);
+}
+
+void InstructionSet::xorOp(Reg reg)
+{
+    uint8_t A = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+    xorOp(m_cpu->getRegisterValue<uint8_t>(reg));
+}
+
+void InstructionSet::xorOp(uint8_t value)
+{
+    uint8_t A = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+    uint8_t newA = A ^ value;
+    m_cpu->setRegisterValue(Reg::A, newA);
+
+    m_cpu->setZeroFlag(newA == 0x0);
+    m_cpu->setSubtractFlag(false);
+    m_cpu->setHalfCarryFlag(false);
+    m_cpu->setCarryFlag(false);
 }
 
 void InstructionSet::bit()
 {
 }
 
-void InstructionSet::add(Reg reg1, Reg reg2)
+void InstructionSet::add(Reg reg, uint8_t value, bool carryFlag)
+{
+
+    m_cpu->setRegisterValue(reg, (uint8_t) (m_cpu->getRegisterValue<uint8_t>(reg) + value + carryFlag));
+
+    uint8_t reg1Value = m_cpu->getRegisterValue<uint8_t>(reg);
+
+    //Bit 7 overflow
+    m_cpu->setCarryFlag(0x80 && reg1Value && value);
+    //Bit 3 overflow
+    m_cpu->setHalfCarryFlag(0x08 && reg1Value && value);
+}
+
+void InstructionSet::add(Reg reg, uint16_t value, bool carryFlag)
+{
+
+    m_cpu->setRegisterValue(reg, (uint16_t)(m_cpu->getRegisterValue<uint16_t>(reg) + value + carryFlag));
+
+    uint16_t reg1Value = m_cpu->getRegisterValue<uint16_t>(reg);
+
+    //Bit 15 overflow
+    m_cpu->setCarryFlag(0x8000 && reg1Value && value);
+    //Bit 11 overflow
+    m_cpu->setHalfCarryFlag(0x0800 && reg1Value && value);
+}
+
+void InstructionSet::add(Reg reg1, Reg reg2, bool carryFlag)
 {
     if (reg1 == Reg::AF || reg1 == Reg::BC || reg1 == Reg::DE || reg1 == Reg::HL || reg1 == Reg::SP)
     {
-        uint16_t regValue = m_cpu->getRegisterValue<uint16_t>(reg1) + m_cpu->getRegisterValue<uint16_t>(reg2);
-        m_cpu->setRegisterValue(reg1, regValue);
-
-        uint16_t reg1Value = m_cpu->getRegisterValue<uint16_t>(reg1);
-        uint16_t reg2Value = m_cpu->getRegisterValue<uint16_t>(reg2);
-
-        //Bit 15 overflow
-        m_cpu->setCarryFlag(0x8000 && reg1Value && reg2Value);
-        //Bit 11 overflow
-        m_cpu->setHalfCarryFlag(0x0800 && reg1Value && reg2Value);
+        uint16_t regValue = m_cpu->getRegisterValue<uint16_t>(reg2) + carryFlag;
+        add(reg1, regValue, false);
     }
         
     else
     {
-        uint8_t regValue = m_cpu->getRegisterValue<uint8_t>(reg1) + m_cpu->getRegisterValue<uint8_t>(reg2);
-        m_cpu->setRegisterValue(reg1, regValue);
-
-        uint8_t reg1Value = m_cpu->getRegisterValue<uint8_t>(reg1);
-        uint8_t reg2Value = m_cpu->getRegisterValue<uint8_t>(reg2);
-
-        //Bit 7 overflow
-        m_cpu->setCarryFlag(0x80 && reg1Value && reg2Value);
-        //Bit 3 overflow
-        m_cpu->setHalfCarryFlag(0x08 && reg1Value && reg2Value);
+        uint8_t regValue = m_cpu->getRegisterValue<uint8_t>(reg2) + carryFlag;
+        add(reg1, regValue, false);
     }
 }
 
@@ -887,27 +1004,31 @@ void InstructionSet::adc()
 {
 }
 
-void InstructionSet::sub(Reg reg)
+void InstructionSet::sub(Reg reg, bool carryFlag)
 {
     if (reg == Reg::AF || reg == Reg::BC || reg == Reg::DE || reg == Reg::HL || reg == Reg::SP)
         throw std::invalid_argument("16 bit register substraction not allowed");
 
 
-    sub(m_cpu->getRegisterValue<uint8_t>(reg));
+    sub(m_cpu->getRegisterValue<uint8_t>(reg),carryFlag);
 
 }
-void InstructionSet::sub(uint8_t value)
+void InstructionSet::sub(uint8_t value, bool carryFlag)
 {
     
-    uint8_t newVal = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+    uint8_t A = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+
+    A -= (value + carryFlag);
+
 
     m_cpu->setSubtractFlag(true);
-    m_cpu->setZeroFlag(newVal == 0x0);
-    m_cpu->setHalfCarryFlag( (value & 0x0F) > (newVal & 0x0F));
-    m_cpu->setCarryFlag(value > newVal);
+    m_cpu->setZeroFlag(A == 0x0);
+    m_cpu->setHalfCarryFlag(((value & 0x0F)+ carryFlag) > (A & 0x0F));
+    m_cpu->setCarryFlag((value + carryFlag) > A);
 
-    newVal -= value;
-    m_cpu->setRegisterValue(Reg::A, newVal);
+
+
+    m_cpu->setRegisterValue(Reg::A, (uint8_t) A);
 
 
 }
@@ -916,12 +1037,38 @@ void InstructionSet::sbc()
 {
 }
 
-void InstructionSet::cp()
+void InstructionSet::cp(Reg reg)
 {
+    if (reg == Reg::AF || reg == Reg::BC || reg == Reg::DE || reg == Reg::HL || reg == Reg::SP)
+        throw std::invalid_argument("16 bit register comparison not allowed");
+
+
+    cp(m_cpu->getRegisterValue<uint8_t>(reg));
 }
+
+void InstructionSet::cp(uint8_t value)
+{
+    uint8_t A = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+    A -= (value + A);
+
+    m_cpu->setSubtractFlag(true);
+    m_cpu->setZeroFlag(A == 0x0);
+    m_cpu->setHalfCarryFlag((value & 0x0F) > (A & 0x0F));
+    m_cpu->setCarryFlag((value) > A);
+
+
+}
+
 
 void InstructionSet::cpl()
 {
+    uint8_t newVal = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+
+    m_cpu->setSubtractFlag(true);
+    m_cpu->setHalfCarryFlag(true);
+
+    newVal = ~newVal;
+    m_cpu->setRegisterValue(Reg::A, newVal);
 }
 
 void InstructionSet::res()
@@ -944,6 +1091,31 @@ void InstructionSet::rl()
 {
 }
 
+void InstructionSet::pop(Reg reg)
+{
+    if (reg != Reg::AF && reg != Reg::BC && reg != Reg::DE && reg != Reg::HL && reg != Reg::SP)
+        throw std::invalid_argument("8 bit register pop not allowed");
+
+    ldAddress(m_cpu->getLo(reg), Reg::SP);
+    inc(Reg::SP);
+    ldAddress(m_cpu->getHi(reg), Reg::SP);
+    inc(Reg::SP);
+
+    if (reg == Reg::AF)
+    {
+        uint16_t F = m_cpu->getRegisterValue<uint8_t>(Reg::F);
+        //bit 7
+        m_cpu->setZeroFlag(F & 0x40);
+        //bit 6
+        m_cpu->setSubtractFlag(F & 0x20);
+        //bit 5
+        m_cpu->setHalfCarryFlag(F & 0x10);
+        //bit 4
+        m_cpu->setCarryFlag(F & 0x08);
+    }
+
+}
+
 void InstructionSet::rrc()
 {
 }
@@ -964,8 +1136,12 @@ void InstructionSet::srl()
 {
 }
 
-void InstructionSet::jp(Reg reg)
+void InstructionSet::jp(bool condition, uint16_t address)
 {
+    if (condition)
+    {
+        m_cpu->setPC(address);
+    }
 }
 
 void InstructionSet::jr(bool cc, int8_t destination)
@@ -980,13 +1156,41 @@ void InstructionSet::jr(int8_t offset)
     m_cpu->setPC(m_cpu->getPC() + offset);
 }
 
-void InstructionSet::call()
+void InstructionSet::call(bool condition,uint16_t address)
 {
+    if (condition)
+    {
+        m_mmu->setWord(m_mmu->readWord(m_cpu->getRegisterValue<uint16_t>(Reg::SP)), m_cpu->getPC() + 2);
+        inc(Reg::SP);
+        inc(Reg::SP);
+        jp(true, address);
+    }
 }
 
-void InstructionSet::ret()
+void InstructionSet::ret(bool condition)
 {
+    if (condition)
+    {
+        uint16_t returnAddress = m_mmu->readWord(m_cpu->getRegisterValue<uint16_t>(Reg::SP));
+        m_cpu->setPC(returnAddress);
+        inc(Reg::SP);
+        inc(Reg::SP);
+    }
 }
+
+void InstructionSet::push(Reg reg)
+{
+    if (reg != Reg::AF && reg != Reg::BC && reg != Reg::DE && reg != Reg::HL && reg != Reg::SP)
+        throw std::invalid_argument("8 bit register push not allowed");
+
+
+    ldAddress(Reg::SP, m_cpu->getHi(reg));
+    dec(Reg::SP);
+    ldAddress(Reg::SP, m_cpu->getLo(reg));
+    dec(Reg::SP);
+
+}
+
 
 void InstructionSet::reti()
 {
@@ -996,7 +1200,7 @@ void InstructionSet::rst()
 {
 }
 
-void InstructionSet::decimalAdjustAccumulator()
+void InstructionSet::daa()
 {
     uint8_t adjustment = 0;
 
@@ -1004,20 +1208,33 @@ void InstructionSet::decimalAdjustAccumulator()
     {
         if (m_cpu->getHalfCarryFlag()) adjustment += 0x6;
         if (m_cpu->getCarryFlag()) adjustment += 0x60;
-        sub()
+        sub(adjustment, false);
     }
     else
     {
+        uint8_t A = m_cpu->getRegisterValue<uint8_t>(Reg::A);
+        if (m_cpu->getHalfCarryFlag() || (A & 0xF) > 0x9) adjustment += 0x6;
+        if (m_cpu->getCarryFlag() || (A > 0x99))
+        {
+            adjustment += 0x60;
+            m_cpu->setCarryFlag(true);
+        }
+        add(Reg::A,adjustment, false);
 
     }
+
+    m_cpu->setZeroFlag(m_cpu->getRegisterValue<uint8_t>(Reg::A) == 0x0);
+    m_cpu->setHalfCarryFlag(false);
 
 
 }
 
 void InstructionSet::ccf()
 {
+    m_cpu->setCarryFlag(!m_cpu->getCarryFlag());
 }
 
 void InstructionSet::scf()
 {
+    m_cpu->setCarryFlag(true);
 }

@@ -127,6 +127,42 @@ T CPU::getRegisterValue(RegisterType regType) const
 	}
 }
 
+CPU::RegisterType CPU::getHi(RegisterType regType) const
+{
+	switch (regType)
+	{
+	case AF:
+		return Reg::A;
+	case BC:
+		return Reg::B;
+	case DE:
+		return Reg::D;
+	case HL:
+		return Reg::H;
+
+	default:
+		throw std::invalid_argument("Invalid register type");
+	}
+}
+
+CPU::RegisterType CPU::getLo(RegisterType regType) const
+{
+	switch (regType)
+	{
+	case AF:
+		return Reg::F;
+	case BC:
+		return Reg::C;
+	case DE:
+		return Reg::D;
+	case HL:
+		return Reg::H;
+	default:
+		throw std::invalid_argument("Invalid register type");
+	}
+}
+
+
 void CPU::setRegisterValue(RegisterType regType, uint16_t value)
 {
 	switch (regType)

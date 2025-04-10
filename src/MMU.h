@@ -26,6 +26,6 @@ public:
 	uint16_t readWord(uint16_t address);
 	uint8_t readByte(uint16_t address);
 	void setWord(uint16_t address, uint16_t value);
-	void setWord(uint16_t address, uint8_t value);
+	void setByte(uint16_t address, uint8_t value);
 
 };

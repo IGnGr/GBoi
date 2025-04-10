@@ -87,10 +87,14 @@ public:
 	uint16_t getPC() const { return m_PC; }
 	template <typename T>
 	T getRegisterValue(RegisterType regType) const;
+
 	uint16_t getZeroFlag() const { return m_zeroFlag; }
 	uint16_t getCarryFlag() const { return m_carryFlag; }
 	uint16_t getHalfCarryFlag() const { return m_halfCarryFlag; }
 	uint16_t getSubstractFlag() const { return m_subtractFlag; }
+
+	RegisterType getHi(RegisterType regType) const;
+	RegisterType getLo(RegisterType regType) const;
 
 	void setRegisterValue(RegisterType regType, uint16_t value);
 	void setRegisterValue(RegisterType regType, uint8_t value);
