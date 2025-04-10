@@ -37,8 +37,6 @@ public:
     void ldh(Reg reg, uint8_t value);
     void inc(Reg reg);
     void incAddress(Reg reg);
-    void rotateLeft(Reg reg, bool setCarryFlag);
-    void rotateRight(Reg reg, bool setCarryFlag);
     void dec(Reg reg);
     void andOp(Reg reg);
     void andOp(uint8_t value);
@@ -64,17 +62,19 @@ public:
     void pop(Reg reg);
 
 
-    void bit(int pos, Reg reg);
-    void bitAddress(int pos, Reg reg);
-    void res(int pos, Reg reg);
-    void resAddress(int pos, Reg reg);
-    void set(int pos, Reg reg);
-    void setAddress(int pos, Reg reg);
+    void bit(uint8_t pos, Reg reg);
+    void bitAddress(uint8_t pos, Reg reg);
+    void res(uint8_t pos, Reg reg);
+    void resAddress(uint8_t pos, Reg reg);
+    void set(uint8_t pos, Reg reg);
+    void setAddress(uint8_t pos, Reg reg);
     void rlAddress(Reg reg, bool carryFlag);
-    void rl(Reg reg, bool carryFlag);
     void swap(Reg reg);
     void swapAddress(Reg reg);
-    void rr(Reg reg, bool carryFlag);
+    //rotateLeft
+    void rl(Reg reg, bool setCarryFlag);
+    //rotateRight
+    void rr(Reg reg, bool setCarryFlag);
     void rrAddress(Reg reg, bool carryFlag);
     void sla(Reg reg);
     void slaAddress(Reg reg);

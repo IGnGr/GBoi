@@ -40,7 +40,7 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         ld(Reg::B, (uint8_t) data);
         break;
     case 0x07:
-        rotateLeft(Reg::A, true);
+        rl(Reg::A, true);
         break;
     case 0x08:
         ldAddress((uint16_t) data, Reg::SP);
@@ -64,7 +64,7 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         ld(Reg::C, (uint8_t) data);
         break;
     case 0x0F:
-        rotateRight(Reg::A, false);
+        rr(Reg::A, false);
         break;
     case 0x10:
         stop();
@@ -88,7 +88,7 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         ld(Reg::D, (uint8_t)data);
         break;
     case 0x17:
-        rotateLeft(Reg::A, false);
+        rl(Reg::A, false);
         break;
     case 0x18:
         jr((int8_t) data);
@@ -112,7 +112,7 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         ld(Reg::E, (uint8_t)data);
         break;
     case 0x1F:
-        rotateRight(Reg::A, false);
+        rr(Reg::A, false);
         break;
     case 0x20:
         jr(!m_cpu->getZeroFlag(),(uint8_t) data);
@@ -886,7 +886,7 @@ void InstructionSet::incAddress(Reg reg)
     m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), value + 1);
 }
 
-void InstructionSet::rotateLeft(Reg reg, bool setCarryFlag)
+void InstructionSet::rl(Reg reg, bool setCarryFlag)
 {
     if (reg == Reg::AF || reg == Reg::BC || reg == Reg::DE || reg == Reg::HL || reg == Reg::SP)
     {
@@ -906,7 +906,19 @@ void InstructionSet::rotateLeft(Reg reg, bool setCarryFlag)
     }
 }
 
-void InstructionSet::rotateRight(Reg reg, bool setCarryFlag)
+
+void InstructionSet::rlAddress(Reg reg, bool setCarryFlag)
+{
+
+    uint8_t newValue = m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(reg));
+    if (setCarryFlag) m_cpu->setCarryFlag(newValue & 0x08);
+    //Shift A left by 1 bit and set the least significant bit to the value of the carry flag.
+    newValue = (newValue << 1) | (newValue >> 7);
+    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), newValue);
+
+}
+
+void InstructionSet::rr(Reg reg, bool setCarryFlag)
 {
     if (reg == Reg::AF || reg == Reg::BC || reg == Reg::DE || reg == Reg::HL || reg == Reg::SP)
     {
@@ -925,6 +937,17 @@ void InstructionSet::rotateRight(Reg reg, bool setCarryFlag)
         m_cpu->setRegisterValue(reg, regValue);
     }
 }
+
+void InstructionSet::rrAddress(Reg reg, bool setCarryFlag)
+{
+    uint8_t newValue = m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(reg));
+    if (setCarryFlag) m_cpu->setCarryFlag(newValue & 0x08);
+    //Shift A right by 1 bit and set the most significant bit to the value of the carry flag.
+    newValue = (newValue >> 1) | (newValue << 7);
+    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), newValue);
+
+}
+
 
 
 void InstructionSet::dec(Reg reg)
@@ -1078,32 +1101,32 @@ void InstructionSet::cb(uint16_t operation)
         case 0x06: rlAddress(Reg::HL, true); break;
         case 0x07: rl(Reg::A, true); break;
 
-        case 0x08: rl(Reg::B, true); break;
-        case 0x09: rl(Reg::C, true); break;
-        case 0x0A: rl(Reg::D, true); break;
-        case 0x0B: rl(Reg::E, true); break;
-        case 0x0C: rl(Reg::H, true); break;
-        case 0x0D: rl(Reg::L, true); break;
-        case 0x0E: rlAddress(Reg::HL, true); break;
-        case 0x0F: rl(Reg::A, true); break;
+        case 0x08: rr(Reg::B, true); break;
+        case 0x09: rr(Reg::C, true); break;
+        case 0x0A: rr(Reg::D, true); break;
+        case 0x0B: rr(Reg::E, true); break;
+        case 0x0C: rr(Reg::H, true); break;
+        case 0x0D: rr(Reg::L, true); break;
+        case 0x0E: rrAddress(Reg::HL, true); break;
+        case 0x0F: rr(Reg::A, true); break;
 
-        case 0x10: rr(Reg::B, true); break;
-        case 0x11: rr(Reg::C, true); break;
-        case 0x12: rr(Reg::D, true); break;
-        case 0x13: rr(Reg::E, true); break;
-        case 0x14: rr(Reg::H, true); break;
-        case 0x15: rr(Reg::L, true); break;
-        case 0x16: rrAddress(Reg::HL, true); break;
-        case 0x17: rr(Reg::A, true); break;
+        case 0x10: rl(Reg::B, false); break;
+        case 0x11: rr(Reg::C, false); break;
+        case 0x12: rr(Reg::D, false); break;
+        case 0x13: rr(Reg::E, false); break;
+        case 0x14: rr(Reg::H, false); break;
+        case 0x15: rr(Reg::L, false); break;
+        case 0x16: rrAddress(Reg::HL, false); break;
+        case 0x17: rr(Reg::A, false); break;
 
-        case 0x18: rr(Reg::B, true); break;
-        case 0x19: rr(Reg::C, true); break;
-        case 0x1A: rr(Reg::D, true); break;
-        case 0x1B: rr(Reg::E, true); break;
-        case 0x1C: rr(Reg::H, true); break;
-        case 0x1D: rr(Reg::L, true); break;
-        case 0x1E: rrAddress(Reg::HL, true); break;
-        case 0x1F: rr(Reg::A, true); break;
+        case 0x18: rr(Reg::B, false); break;
+        case 0x19: rr(Reg::C, false); break;
+        case 0x1A: rr(Reg::D, false); break;
+        case 0x1B: rr(Reg::E, false); break;
+        case 0x1C: rr(Reg::H, false); break;
+        case 0x1D: rr(Reg::L, false); break;
+        case 0x1E: rrAddress(Reg::HL, false); break;
+        case 0x1F: rr(Reg::A, false); break;
 
         case 0x20: sla(Reg::B); break;
         case 0x21: sla(Reg::C); break;
@@ -1400,47 +1423,80 @@ void InstructionSet::cpl()
     m_cpu->setRegisterValue(Reg::A, newVal);
 }
 
-void InstructionSet::bit(int pos, Reg reg)
+void InstructionSet::bit(uint8_t pos, Reg reg)
 {
+    assert(pos > 0 && pos < 8);
+
+    uint8_t newValue = m_cpu->getRegisterValue<uint8_t>(reg);
+    m_cpu->setZeroFlag(newValue && (1 << pos));
+    m_cpu->setCarryFlag(false);
+    m_cpu->setHalfCarryFlag(true);
+    m_cpu->setRegisterValue(reg, newValue);
+
 }
 
-void InstructionSet::bitAddress(int pos, Reg reg)
+void InstructionSet::bitAddress(uint8_t pos, Reg reg)
 {
+    assert(pos > 0 && pos < 8);
+
+    uint8_t newValue = m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(reg));
+    m_cpu->setZeroFlag(newValue && (1 << pos));
+    m_cpu->setCarryFlag(false);
+    m_cpu->setHalfCarryFlag(true);
+    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), newValue);
 }
 
 
-void InstructionSet::res(int pos, Reg reg)
+void InstructionSet::res(uint8_t pos, Reg reg)
 {
+    assert(pos > 0 && pos < 8);
+
+    uint8_t newValue = m_cpu->getRegisterValue<uint8_t>(reg);
+    newValue &= ~(1 << pos);
+    m_cpu->setRegisterValue(reg, newValue);
 }
 
-void InstructionSet::resAddress(int pos, Reg reg)
+void InstructionSet::resAddress(uint8_t pos, Reg reg)
 {
+    assert(pos > 0 && pos < 8);
+
+    uint8_t newValue = m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(reg));
+    newValue &= ~(1 << pos);
+    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), newValue);
 }
 
-void InstructionSet::set(int pos, Reg reg)
+void InstructionSet::set(uint8_t pos, Reg reg)
 {
+    assert(pos > 0 && pos < 8);
+
+    uint8_t newValue = m_cpu->getRegisterValue<uint8_t>(reg);
+    newValue |= 1 << pos;
+    m_cpu->setRegisterValue(reg, newValue);
 }
 
-void InstructionSet::setAddress(int pos, Reg reg)
+void InstructionSet::setAddress(uint8_t pos, Reg reg)
 {
+    assert(pos > 0 && pos < 8);
+
+    uint8_t newValue = m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(reg));
+    newValue |= 1 << pos;
+    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), newValue);
 }
 
 void InstructionSet::swap(Reg reg)
 {
+    uint8_t newValue = m_cpu->getRegisterValue<uint8_t>(reg);
+    newValue = (newValue >> 4) | (newValue << 4);
+    m_cpu->setRegisterValue(reg, newValue);
 }
 
 void InstructionSet::swapAddress(Reg reg)
 {
+    uint8_t newValue = m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(reg));
+    newValue = ( newValue >> 4) | (newValue << 4);
+    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), newValue);
 }
 
-void InstructionSet::rlAddress(Reg reg, bool carryFlag)
-{
-}
-
-
-void InstructionSet::rl(Reg reg, bool carryFlag)
-{
-}
 
 
 void InstructionSet::pop(Reg reg)
@@ -1468,36 +1524,74 @@ void InstructionSet::pop(Reg reg)
 
 }
 
-void InstructionSet::rr(Reg reg, bool carryFlag)
-{
-}
-
-void InstructionSet::rrAddress(Reg reg, bool carryFlag)
-{
-}
 
 void InstructionSet::sla(Reg reg)
 {
+    uint8_t newValue = m_cpu->getRegisterValue<uint8_t>(reg);
+
+    m_cpu->setCarryFlag(newValue & 0x80);
+
+    newValue <<= 1;
+
+    m_cpu->setZeroFlag(newValue == 0);
+    m_cpu->setSubtractFlag(false);
+    m_cpu->setHalfCarryFlag(false);
+
+    m_cpu->setRegisterValue(reg, newValue);
+
 }
 
 void InstructionSet::slaAddress(Reg reg)
 {
+    uint8_t newValue = m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(reg));
+
+    m_cpu->setCarryFlag(newValue & 0x80);
+
+    newValue <<= 1;
+
+    m_cpu->setZeroFlag(newValue == 0);
+    m_cpu->setSubtractFlag(false);
+    m_cpu->setHalfCarryFlag(false);
+
+    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), newValue);
 }
 
 void InstructionSet::sra(Reg reg)
 {
+    uint8_t newValue = m_cpu->getRegisterValue<uint8_t>(reg);
+
+    m_cpu->setCarryFlag(newValue & 0x01);
+
+    newValue >>= 1;
+
+    m_cpu->setZeroFlag(newValue == 0);
+    m_cpu->setSubtractFlag(false);
+    m_cpu->setHalfCarryFlag(false);
+    m_cpu->setRegisterValue(reg, newValue);
 }
 
 void InstructionSet::sraAddress(Reg reg)
 {
+    uint8_t newValue = m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(reg));
+    m_cpu->setCarryFlag(newValue & 0x01);
+
+    newValue >>= 1;
+
+    m_cpu->setZeroFlag(newValue == 0);
+    m_cpu->setSubtractFlag(false);
+    m_cpu->setHalfCarryFlag(false);    
+    
+    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), newValue);
 }
 
 void InstructionSet::srl(Reg reg)
 {
+    sla(reg);
 }
 
 void InstructionSet::srlAddress(Reg reg)
 {
+    slaAddress(reg);
 }
 
 void InstructionSet::jp(bool condition, uint16_t address)
