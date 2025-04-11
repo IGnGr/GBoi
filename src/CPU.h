@@ -100,5 +100,6 @@ public:
 	void setSubtractFlag(bool value) { m_subtractFlag = value; }
 	void setInterruptsFlag(bool value) { m_interruptsFlag = value; }
 	void setPC(uint16_t value) { m_PC = value; }
+	void ForwardPC(uint16_t steps) { m_PC += steps; }
 
 };

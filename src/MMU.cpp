@@ -1,5 +1,6 @@
 #include "MMU.h"
 #include <stdexcept>
+#include <cstdint>
 
 MMU::MMU(std::shared_ptr<GameROM> game)
 {
@@ -77,7 +78,8 @@ void MMU::printMemory(int from, int until)
 
 uint16_t MMU::readWord(uint16_t address)
 {
-	return m_memory[address];
+	uint16_t result =m_memory[address+1] << 8 | m_memory[address];
+	return result;
 }
 
 uint8_t MMU::readByte(uint16_t address)
@@ -87,10 +89,14 @@ uint8_t MMU::readByte(uint16_t address)
 
 void MMU::setWord(uint16_t address, uint16_t value)
 {
-
+	m_memory[address] = value & 0xFF;
+	m_memory[address+1] = value << 8;
 }
 
 void MMU::setByte(uint16_t address, uint8_t value)
 {
+	m_memory[address] = value;
 }
+
+
 

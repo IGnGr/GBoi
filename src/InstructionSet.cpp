@@ -14,7 +14,8 @@ InstructionSet::~InstructionSet()
 
 void InstructionSet::executeInstruction(uint8_t opCode)
 {
-	uint16_t data = m_mmu->readWord(m_cpu->getPC());
+	uint16_t dataWord = m_mmu->readWord(m_cpu->getPC() + 1);
+    uint8_t dataByte = m_mmu->readWord(m_cpu->getPC() + 1);
 
     switch (opCode)
     {
@@ -22,7 +23,8 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         nop();
         break;
     case 0x01:
-        ld(Reg::BC, data);
+        ld(Reg::BC, dataWord);
+        m_cpu->ForwardPC(2);
         break;
     case 0x02:
 		ldAddress(Reg::BC, Reg::A);
@@ -37,13 +39,15 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         dec(Reg::B);
         break;
     case 0x06:
-        ld(Reg::B, (uint8_t) data);
+        ld(Reg::B, dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x07:
         rl(Reg::A, true);
         break;
     case 0x08:
-        ldAddress((uint16_t) data, Reg::SP);
+        ldAddress(dataWord, Reg::SP);
+        m_cpu->ForwardPC(2);
         break;
     case 0x09:
         add(Reg::HL, Reg::BC, false);
@@ -61,16 +65,19 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         dec(Reg::C);
         break;
     case 0x0E:
-        ld(Reg::C, (uint8_t) data);
+        ld(Reg::C, dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x0F:
         rr(Reg::A, false);
         break;
     case 0x10:
         stop();
+        m_cpu->ForwardPC(1);
         break;
     case 0x11:
-        ld(Reg::DE, (uint16_t) data);        
+        ld(Reg::DE, dataWord);      
+        m_cpu->ForwardPC(2);
         break;
     case 0x12:
         ldAddress(Reg::DE, Reg::A);
@@ -85,13 +92,15 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         dec(Reg::D);
         break;
     case 0x16:
-        ld(Reg::D, (uint8_t)data);
+        ld(Reg::D, dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x17:
         rl(Reg::A, false);
         break;
     case 0x18:
-        jr((int8_t) data);
+        jr(dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x19:
         add(Reg::HL, Reg::DE, false);
@@ -109,16 +118,19 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         dec(Reg::E);
         break;
     case 0x1E:
-        ld(Reg::E, (uint8_t)data);
+        ld(Reg::E, dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x1F:
         rr(Reg::A, false);
         break;
     case 0x20:
-        jr(!m_cpu->getZeroFlag(),(uint8_t) data);
+        jr(!m_cpu->getZeroFlag(),dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x21:
         ldAddress(Reg::DE, Reg::A);
+        m_cpu->ForwardPC(2);
         break; 
     case 0x22:
         ldAddress(Reg::HL,Reg::A);
@@ -134,13 +146,15 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         dec(Reg::H);
         break;
     case 0x26:
-        ld(Reg::H, (uint8_t) data);
+        ld(Reg::H, dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x27:
         daa();
         break;
     case 0x28:
-        jr(m_cpu->getZeroFlag(),(int8_t) data);
+        jr(m_cpu->getZeroFlag(),dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x29:
         add(Reg::HL, Reg::HL, false);
@@ -158,16 +172,19 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         dec(Reg::L);
         break;
     case 0x2E:
-        ld(Reg::L, (uint8_t) data);
+        ld(Reg::L, dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x2F:
         cpl();
         break;
     case 0x30:
-        jr(!m_cpu->getCarryFlag(), (int8_t) data);
+        jr(!m_cpu->getCarryFlag(), dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x31:
-        ld(Reg::SP, (uint16_t) data);
+        ld(Reg::SP, dataWord);
+        m_cpu->ForwardPC(2);
         break;
     case 0x32:
         ldAddress(Reg::HL, Reg::A);
@@ -183,13 +200,15 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         dec(Reg::HL);
         break;
     case 0x36:
-        ldAddress(Reg::HL, (uint8_t)data);
+        ldAddress(Reg::HL, dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x37:
         scf();
         break;
     case 0x38:
-        jr(m_cpu->getCarryFlag(), (int8_t)data);
+        jr(m_cpu->getCarryFlag(), dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x39:
         add(Reg::HL, Reg::SP, false);
@@ -208,7 +227,8 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         dec(Reg::A);
         break;
     case 0x3E:
-        ld(Reg::A, (uint8_t) data);
+        ld(Reg::A, dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0x3F:
         ccf();
@@ -604,19 +624,20 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         pop(Reg::BC);
         break;
     case 0xC2:
-        jp(!m_cpu->getZeroFlag(), m_mmu->readWord((uint16_t) data));
+        jp(!m_cpu->getZeroFlag(), dataWord);
         break;
     case 0xC3:
-        jp(true, m_mmu->readWord((uint16_t)data));
+        jp(true, dataWord);
         break;
     case 0xC4:
-        call(!m_cpu->getZeroFlag(), m_mmu->readWord((uint16_t)data));
+        call(!m_cpu->getZeroFlag(), m_mmu->readWord(dataWord));
         break;
     case 0xC5:
         push(Reg::BC);
         break;
     case 0xC6:
-        add(Reg::A, (uint8_t) data, false);
+        add(Reg::A, dataByte, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0xC7:
         //rst $00
@@ -629,19 +650,22 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         ret(true);
         break;
     case 0xCA:
-        jp(m_cpu->getZeroFlag(), (uint16_t)data);
+        jp(m_cpu->getZeroFlag(), dataWord);
         break;
     case 0xCB:
-        cb((uint16_t) data) ;
+        cb(dataWord) ;
         break;
     case 0xCC:
-        call(m_cpu->getZeroFlag(), (uint16_t)data);
+        call(m_cpu->getZeroFlag(), dataWord);
+        m_cpu->ForwardPC(2);
         break;
     case 0xCD:
-        call(true, (uint16_t) data);
+        call(true, dataWord);
+        m_cpu->ForwardPC(2);
         break;
     case 0xCE:
-        add(Reg::A, (uint8_t) data, true);
+        add(Reg::A, dataByte, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0xCF:
         //rst $08
@@ -654,16 +678,18 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         pop(Reg::DE);
         break;
     case 0xD2:
-        jp(!m_cpu->getCarryFlag(), (uint16_t) data);
+        jp(!m_cpu->getCarryFlag(), dataWord);
         break;
     case 0xD4:
-        call(!m_cpu->getCarryFlag(), (uint16_t)data);
+        call(!m_cpu->getCarryFlag(), dataWord);
+        m_cpu->ForwardPC(2);
         break;
     case 0xD5:
         push(Reg::DE);
         break;
     case 0xD6:
-        sub((uint8_t) data, false);
+        sub(dataByte, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0xD7:
         //rst $10
@@ -677,62 +703,70 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         ret(true);
         break;
     case 0xDA:
-        jp(Reg::C, (uint16_t) data);
+        jp(Reg::C, dataWord);
         break;
     case 0xDC:
-        call(m_cpu->getCarryFlag(), (uint16_t) data);
+        call(m_cpu->getCarryFlag(), dataWord);
         break;
     case 0xDE:
         //sbc A, n8
-        sub((uint8_t)data, true);
+        sub(dataByte, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0xDF:
         //rst $18
         call(true, m_mmu->readWord(0x18));
         break;
     case 0xE0:
-        ldh((uint16_t) data, Reg::A);
+        ldh(dataWord, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0xE1:
         pop(Reg::HL);
         break;
     case 0xE2:
-        ldh((uint8_t)data, Reg::A);
+        ldh(dataByte, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0xE5:
         push(Reg::HL);
         break;
     case 0xE6:
-        andOp((uint8_t) data);
+        andOp(dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0xE7:
         //rst $20
         call(true, m_mmu->readWord(0x20));
         break;
     case 0xE8:
-        add(Reg::SP, (uint8_t) data, false);
+        add(Reg::SP, dataByte, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0xE9:
-        jp(m_cpu->getCarryFlag(), (uint16_t) data);
+        jp(m_cpu->getCarryFlag(), dataWord);
         break;
     case 0xEA:
-        ldAddress((uint16_t) data, Reg::A);
+        ldAddress(dataWord, Reg::A);
+        m_cpu->ForwardPC(2);
         break;
     case 0xEE:
-        xorOp((uint8_t) data);
+        xorOp(dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0xEF:
         //rst $28
         call(true, m_mmu->readWord(0x28));
         break;
     case 0xF0:
-        ldh(Reg::A, (uint8_t) data);
+        ldh(Reg::A, dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0xF1:
         pop(Reg::AF);
         break;
     case 0xF2:
-        ldh(Reg::A, (uint8_t) data);
+        ldh(Reg::A, dataByte);
         break;
     case 0xF3:
         di();
@@ -741,26 +775,30 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         push(Reg::AF);
         break;
     case 0xF6:
-        orOp((uint8_t) data);
+        orOp(dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0xF7: 
         //rst $30
         call(true, m_mmu->readWord(0x30));        
         break;
     case 0xF8:
-        ld(Reg::HL, Reg::SP,(int8_t) data);
+        ld(Reg::HL, Reg::SP,dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0xF9:
         ld(Reg::SP, Reg::HL);
         break;
     case 0xFA:
-        ld(Reg::A, (uint16_t) data);
+        ld(Reg::A, dataWord);
+        m_cpu->ForwardPC(2);
         break;
     case 0xFB:
         ei();
         break;
     case 0xFE:
-        cp((uint8_t) data);
+        cp(dataByte);
+        m_cpu->ForwardPC(1);
         break;
     case 0xFF:
         //rst $38
@@ -1022,9 +1060,9 @@ void InstructionSet::add(Reg reg, uint8_t value, bool carryFlag)
     uint8_t reg1Value = m_cpu->getRegisterValue<uint8_t>(reg);
 
     //Bit 7 overflow
-    m_cpu->setCarryFlag(0x80 && reg1Value && value);
+    m_cpu->setCarryFlag(0x80 & reg1Value & value);
     //Bit 3 overflow
-    m_cpu->setHalfCarryFlag(0x08 && reg1Value && value);
+    m_cpu->setHalfCarryFlag(0x08 & reg1Value & value);
 }
 
 void InstructionSet::add(Reg reg, uint16_t value, bool carryFlag)
@@ -1035,9 +1073,9 @@ void InstructionSet::add(Reg reg, uint16_t value, bool carryFlag)
     uint16_t reg1Value = m_cpu->getRegisterValue<uint16_t>(reg);
 
     //Bit 15 overflow
-    m_cpu->setCarryFlag(0x8000 && reg1Value && value);
+    m_cpu->setCarryFlag(0x8000 & reg1Value & value);
     //Bit 11 overflow
-    m_cpu->setHalfCarryFlag(0x0800 && reg1Value && value);
+    m_cpu->setHalfCarryFlag(0x0800 & reg1Value & value);
 }
 
 void InstructionSet::add(Reg reg1, Reg reg2, bool carryFlag)
@@ -1428,7 +1466,7 @@ void InstructionSet::bit(uint8_t pos, Reg reg)
     assert(pos > 0 && pos < 8);
 
     uint8_t newValue = m_cpu->getRegisterValue<uint8_t>(reg);
-    m_cpu->setZeroFlag(newValue && (1 << pos));
+    m_cpu->setZeroFlag(newValue & (1 << pos));
     m_cpu->setCarryFlag(false);
     m_cpu->setHalfCarryFlag(true);
     m_cpu->setRegisterValue(reg, newValue);
@@ -1440,7 +1478,7 @@ void InstructionSet::bitAddress(uint8_t pos, Reg reg)
     assert(pos > 0 && pos < 8);
 
     uint8_t newValue = m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(reg));
-    m_cpu->setZeroFlag(newValue && (1 << pos));
+    m_cpu->setZeroFlag(newValue & (1 << pos));
     m_cpu->setCarryFlag(false);
     m_cpu->setHalfCarryFlag(true);
     m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(reg), newValue);
@@ -1598,7 +1636,8 @@ void InstructionSet::jp(bool condition, uint16_t address)
 {
     if (condition)
     {
-        m_cpu->setPC(address);
+        //address-1 to account for the PC++ at fetching 
+        m_cpu->setPC(address-1);
     }
 }
 
@@ -1611,7 +1650,8 @@ void InstructionSet::jr(bool cc, int8_t destination)
 void InstructionSet::jr(int8_t offset)
 {
     assert(offset >= -128 && offset <= 127);
-    m_cpu->setPC(m_cpu->getPC() + offset);
+    //address-1 to account for the PC++ at fetching 
+    m_cpu->setPC(m_cpu->getPC() + offset - 1);
 }
 
 void InstructionSet::call(bool condition,uint16_t address)

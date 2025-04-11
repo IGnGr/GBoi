@@ -16,8 +16,6 @@ public:
 	std::vector<uint8_t> getCurrentBank() const { return m_ROMBanks[m_currentBank]; }
 	void setCurrentBank(int bank) { m_currentBank = bank; };
 
-
-
 };
 
 class MBC0 : public MBC {
