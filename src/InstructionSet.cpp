@@ -129,7 +129,7 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         m_cpu->ForwardPC(1);
         break;
     case 0x21:
-        ldAddress(Reg::DE, Reg::A);
+        ld(Reg::DE, dataWord);
         m_cpu->ForwardPC(2);
         break; 
     case 0x22:
@@ -187,8 +187,8 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         m_cpu->ForwardPC(2);
         break;
     case 0x32:
-        ldAddress(Reg::HL, Reg::A);
-        dec(Reg::HL);
+        ldAddress(Reg::SP, Reg::A);
+        dec(Reg::SP);
         break;
     case 0x33:
         inc(Reg::SP);
@@ -718,14 +718,14 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         call(true, m_mmu->readWord(0x18));
         break;
     case 0xE0:
-        ldh(dataWord, Reg::A);
+        ldh(dataByte, false);
         m_cpu->ForwardPC(1);
         break;
     case 0xE1:
         pop(Reg::HL);
         break;
     case 0xE2:
-        ldh(dataByte, Reg::A);
+        ldh(dataByte, false);
         m_cpu->ForwardPC(1);
         break;
     case 0xE5:
@@ -759,14 +759,14 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         call(true, m_mmu->readWord(0x28));
         break;
     case 0xF0:
-        ldh(Reg::A, dataByte);
+        ldh(dataByte, true);
         m_cpu->ForwardPC(1);
         break;
     case 0xF1:
         pop(Reg::AF);
         break;
     case 0xF2:
-        ldh(Reg::A, dataByte);
+        ldh(dataByte, true);
         break;
     case 0xF3:
         di();
@@ -822,7 +822,7 @@ void InstructionSet::stop()
 
 void InstructionSet::halt()
 {
-    throw std::invalid_argument("Operation not implemented");
+    m_cpu->setHaltFlag(true);
 }
 
 void InstructionSet::ld(Reg reg, uint16_t value)
@@ -859,16 +859,34 @@ void InstructionSet::ld(Reg regTo, Reg regFrom, int8_t offset)
 
 void InstructionSet::ldAddress(Reg regAddress, Reg regValue)
 {
-    if (regValue == Reg::AF || regValue == Reg::BC || regValue == Reg::DE || regValue == Reg::HL || regValue == Reg::SP)
-        m_mmu->setWord(m_cpu->getRegisterValue<uint16_t>(regAddress), m_cpu->getRegisterValue<uint16_t>(regValue));
+    uint16_t address = m_cpu->getRegisterValue<uint16_t>(regAddress);
+
+    if (m_cpu->isDoubleRegister(regValue))
+    {
+        uint16_t value = m_cpu->getRegisterValue<uint16_t>(regValue);
+        m_mmu->setWord(address, value);
+    }
     else
-        m_mmu->setWord(m_cpu->getRegisterValue<uint16_t>(regAddress), m_cpu->getRegisterValue<uint8_t>(regValue));
+    {
+        uint8_t value = m_cpu->getRegisterValue<uint8_t>(regValue);
+        m_mmu->setByte(address, value);
+    }
 }
 
 
 void InstructionSet::ldAddress(Reg regAddress, uint8_t value)
 {
-    m_mmu->setByte(m_cpu->getRegisterValue<uint16_t>(regAddress), value);
+
+    if (m_cpu->isDoubleRegister(regAddress))
+    {
+        uint16_t address = m_cpu->getRegisterValue<uint16_t>(regAddress);
+        m_mmu->setByte(address, value);
+    }
+    else
+    {
+        uint8_t address = m_cpu->getRegisterValue<uint8_t>(regAddress);
+        m_mmu->setByte(address, value);
+    }
 }
 
 
@@ -882,31 +900,35 @@ void InstructionSet::ldAddress(uint16_t address, Reg regValue)
     m_mmu->setWord(address, m_cpu->getRegisterValue<uint16_t>(regValue));
 }
 
-//Copy the value in register A into the byte at address n16, provided the address is between $FF00 and $FFFF.
-void InstructionSet::ldh(uint16_t address, Reg A)
+void InstructionSet::ldh(uint16_t address, bool writingA)
 {
-    assert(address > 0xFF00 && address < 0xFFFF);
-	ldAddress(address, A);
+    assert(address >= 0xFF00 && address <= 0xFFFF);
+
+    if(writingA)
+    { 
+        m_cpu->setRegisterValue(Reg::A, m_mmu->readByte(address));
+    }
+    else
+    {
+        m_mmu->setByte(address, m_cpu->getRegisterValue<uint8_t>(Reg::A));
+    }
 }
 
-//Copy the value in register A into the byte at address $FF00+C.
-void InstructionSet::ldh(uint8_t c , Reg A)
+void InstructionSet::ldh(uint8_t value, bool writingA)
 {
-    uint16_t address = 0xFF00 + c;
-    assert(address > 0xFF00 && address < 0xFFFF);
-    m_mmu->setWord(address, m_cpu->getRegisterValue<uint8_t>(A));
-}
 
-void InstructionSet::ldh(Reg reg, uint16_t value)
-{
-    assert(value > 0xFF00 && value < 0xFFFF);
-    ldAddress(reg, value);
-}
+    uint16_t address = 0xFF00 + value;
+    assert(address >= 0xFF00 && address <= 0xFFFF);
 
-void InstructionSet::ldh(Reg reg, uint8_t value)
-{
-    assert((0xFF00 + value) > 0xFF00 && (0xFF00 + value) < 0xFFFF);
-    ldAddress(reg, 0xFF00 + value);
+    if (writingA)
+    {
+        m_cpu->setRegisterValue(Reg::A, m_mmu->readByte(address));
+    }
+    else
+    {
+        m_mmu->setByte(address, m_cpu->getRegisterValue<uint8_t>(Reg::A));
+    }
+
 }
 
 
@@ -990,10 +1012,22 @@ void InstructionSet::rrAddress(Reg reg, bool setCarryFlag)
 
 void InstructionSet::dec(Reg reg)
 {
+
     if (reg == Reg::AF || reg == Reg::BC || reg == Reg::DE || reg == Reg::HL || reg == Reg::SP)
-        m_cpu->setRegisterValue(reg, static_cast<uint16_t>(m_cpu->getRegisterValue<uint16_t>(reg) - 1));
+    {
+        uint16_t newVal = m_cpu->getRegisterValue<uint16_t>(reg) - 1;
+        m_cpu->setRegisterValue(reg, newVal);
+
+    }
     else
-        m_cpu->setRegisterValue(reg, static_cast<uint8_t> (m_cpu->getRegisterValue<uint8_t>(reg) - 1));
+    {
+        uint8_t newVal = m_cpu->getRegisterValue<uint8_t>(reg) - 1;
+        m_cpu->setRegisterValue(reg, newVal);
+
+        m_cpu->setZeroFlag(newVal == 0x0);
+        m_cpu->setSubtractFlag(true);
+        m_cpu->setHalfCarryFlag(newVal & 0x08);
+    }
 }
 
 void InstructionSet::andOp(Reg reg)
@@ -1643,8 +1677,10 @@ void InstructionSet::jp(bool condition, uint16_t address)
 
 void InstructionSet::jr(bool cc, int8_t destination)
 {
-    if (cc) 
+    if (cc)
         jr(destination);
+    else
+        m_cpu->ForwardPC(1);
 }
 
 void InstructionSet::jr(int8_t offset)

@@ -31,10 +31,8 @@ public:
     void ldAddress(Reg regAddress, uint8_t value);
     void ldAddress(uint8_t address, Reg reg);
     void ldAddress(uint16_t address, Reg reg);
-    void ldh(uint16_t address, Reg A);
-    void ldh(uint8_t c, Reg A);
-    void ldh(Reg reg, uint16_t value);
-    void ldh(Reg reg, uint8_t value);
+    void ldh(uint16_t value, bool writingA);
+    void ldh(uint8_t value, bool writingA);
     void inc(Reg reg);
     void incAddress(Reg reg);
     void dec(Reg reg);

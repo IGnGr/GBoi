@@ -18,6 +18,7 @@ private:
 
 public:
 	MMU(std::shared_ptr<GameROM> game);
+	void initialize();
 	~MMU();
 	void initializeMBC(uint8_t cartridgeType);
 	void updateBank();

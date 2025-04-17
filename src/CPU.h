@@ -47,11 +47,8 @@ private:
 
 	uint8_t m_clock = 0;
 
-	bool m_zeroFlag = false;
-	bool m_carryFlag = false;
-	bool m_halfCarryFlag = false;
-	bool m_subtractFlag = false;
 	bool m_interruptsFlag = false;
+	bool m_isHalted = false;
 
 	uint8_t m_currentInstruction = 0;
 
@@ -83,10 +80,11 @@ public:
 	template <typename T>
 	T getRegisterValue(RegisterType regType) const;
 
-	uint16_t getZeroFlag() const { return m_zeroFlag; }
-	uint16_t getCarryFlag() const { return m_carryFlag; }
-	uint16_t getHalfCarryFlag() const { return m_halfCarryFlag; }
-	uint16_t getSubstractFlag() const { return m_subtractFlag; }
+	uint16_t getZeroFlag() const { return m_AF.getLo() >> 7 & 1; }
+	uint16_t getSubstractFlag() const { return m_AF.getLo() >> 6 & 1; }
+	uint16_t getHalfCarryFlag() const { return m_AF.getLo() >> 5 & 1; }
+	uint16_t getCarryFlag() const { return m_AF.getLo() >> 4 & 1;}
+
 	uint16_t getInterruptsFlag() const { return m_interruptsFlag; }
 
 	RegisterType getHi(RegisterType regType) const;
@@ -94,12 +92,17 @@ public:
 
 	void setRegisterValue(RegisterType regType, uint16_t value);
 	void setRegisterValue(RegisterType regType, uint8_t value);
-	void setCarryFlag(bool value) { m_carryFlag = value; }
-	void setZeroFlag(bool value) { m_zeroFlag = value; }
-	void setHalfCarryFlag(bool value) { m_halfCarryFlag = value; }
-	void setSubtractFlag(bool value) { m_subtractFlag = value; }
+
+	void setZeroFlag(bool value);
+	void setSubtractFlag(bool value);
+	void setHalfCarryFlag(bool value);
+	void setCarryFlag(bool value);
+
 	void setInterruptsFlag(bool value) { m_interruptsFlag = value; }
+	void setHaltFlag(bool value) { m_isHalted = value; }
+
 	void setPC(uint16_t value) { m_PC = value; }
 	void ForwardPC(uint16_t steps) { m_PC += steps; }
+	bool isDoubleRegister(RegisterType regType);
 
 };

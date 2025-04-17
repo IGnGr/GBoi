@@ -24,11 +24,13 @@ CPU::~CPU()
 
 void CPU::execute()
 {
-	while (true)
+	while (!m_isHalted)
 	{
 		fetchNextInstruction();
 		decodeNextInstruction();
 		executeNextInstruction();
+		m_clock++;
+		printState();
 	}
 }
 
@@ -55,22 +57,18 @@ void CPU::executeNextInstruction()
 
 void CPU::initialize()
 {
-	setRegisterValue(A, (uint8_t)0);
-	setRegisterValue(B, (uint8_t)0);
-	setRegisterValue(C, (uint8_t)0);
-	setRegisterValue(D, (uint8_t)0);
-	setRegisterValue(E, (uint8_t)0);
-	setRegisterValue(H, (uint8_t)0);
-	setRegisterValue(L, (uint8_t)0);
-	setRegisterValue(F, (uint8_t)0);
-	setRegisterValue(SP, (uint16_t)0);
+	setRegisterValue(A, (uint8_t)0xFF);
+	setRegisterValue(B, (uint8_t)0xFF);
+	setRegisterValue(C, (uint8_t)0xFF);
+	setRegisterValue(D, (uint8_t)0xFF);
+	setRegisterValue(E, (uint8_t)0xFF);
+	setRegisterValue(H, (uint8_t)0xFF);
+	setRegisterValue(L, (uint8_t)0xFF);
+	setRegisterValue(F, (uint8_t)0xFF);
+	setRegisterValue(SP, (uint16_t)0xFFFF);
 
 	m_PC = 0x100;
 	m_clock = 0;
-	m_zeroFlag = false;
-	m_carryFlag = false;
-	m_halfCarryFlag = false;
-	m_subtractFlag = false;
 	m_instructionSet = std::make_shared<InstructionSet>(shared_from_this(), m_mmu);
 
 }
@@ -220,16 +218,16 @@ void CPU::setRegisterValue(RegisterType regType, uint8_t value)
 	}
 }
 
+bool CPU::isDoubleRegister(RegisterType regType)
+{
+	return (regType == Reg::AF || regType == Reg::BC || regType == Reg::DE || regType == Reg::HL || regType == Reg::SP);
+}
+
 
 void CPU::printState() const
 {
+	std::cout << "-------- New Cycle ------------" << std::hex << std::endl;
 	std::cout << "A				 : " << getRegisterValue<uint8_t>(A) << std::endl;
-	std::cout << "B				 : " << getRegisterValue<uint8_t>(B) << std::endl;
-	std::cout << "C				 : " << getRegisterValue<uint8_t>(C) << std::endl;
-	std::cout << "D				 : " << getRegisterValue<uint8_t>(D) << std::endl;
-	std::cout << "E				 : " << getRegisterValue<uint8_t>(E) << std::endl;
-	std::cout << "H				 : " << getRegisterValue<uint8_t>(H) << std::endl;
-	std::cout << "L				 : " << getRegisterValue<uint8_t>(L) << std::endl;
 	std::cout << "AF			 : " << getRegisterValue<uint16_t>(AF) << std::endl;
 	std::cout << "BC			 : " << getRegisterValue<uint16_t>(BC) << std::endl;
 	std::cout << "DE			 : " << getRegisterValue<uint16_t>(DE) << std::endl;
@@ -237,10 +235,68 @@ void CPU::printState() const
 	std::cout << "SP			 : " << getRegisterValue<uint16_t>(SP) << std::endl;
 	std::cout << "PC			 : " << m_PC << std::endl;
 	std::cout << "Clock	  		 : " << m_clock << std::endl;
-	std::cout << "Zero Flag      : " << m_zeroFlag << std::endl;
-	std::cout << "Carry Flag     : " << m_carryFlag << std::endl;
-	std::cout << "Half Carry Flag: " << m_halfCarryFlag << std::endl;
-	std::cout << "Subtract Flag	 : " << m_subtractFlag << std::endl;
+	std::cout << "Zero Flag      : " << getZeroFlag() << std::endl;
+	std::cout << "Carry Flag     : " << getCarryFlag() << std::endl;
+	std::cout << "Half Carry Flag: " << getHalfCarryFlag() << std::endl;
+	std::cout << "Subtract Flag	 : " << getSubstractFlag() << std::endl;
+	std::cout << "-------------------------------" << std::endl;
+	std::cout << "								 " << std::endl;
+
+}
+
+
+void CPU::setZeroFlag(bool value)
+{
+	if (value)
+	{
+		m_AF.setLo(m_AF.getLo() | 1 << 7);
+	}
+		
+	else
+	{
+		m_AF.setLo(m_AF.getLo() & ~(1 << 7));
+	}
+
+}
+
+void CPU::setSubtractFlag(bool value)
+{
+	if (value)
+	{
+		m_AF.setLo(m_AF.getLo() | 1 << 6);
+	}
+
+	else
+	{
+		m_AF.setLo(m_AF.getLo() & ~(1 << 6));
+	}
+
+}
+
+void CPU::setHalfCarryFlag(bool value)
+{
+	if (value)
+	{
+		m_AF.setLo(m_AF.getLo() | 1 << 5);
+	}
+
+	else
+	{
+		m_AF.setLo(m_AF.getLo() & ~(1 << 5));
+	}
+}
+
+void CPU::setCarryFlag(bool value)
+{
+	if (value)
+	{
+		m_AF.setLo(m_AF.getLo() | 1 << 4);
+	}
+
+	else
+	{
+		m_AF.setLo(m_AF.getLo() & ~(1 << 4));
+	}
 
 }
 	
