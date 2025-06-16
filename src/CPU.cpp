@@ -36,7 +36,6 @@ void CPU::execute()
 
 void CPU::fetchNextInstruction()
 {
-	m_PC++;
 	m_currentInstruction = m_mmu->readByte(m_PC);
 }
 
@@ -159,7 +158,6 @@ CPU::RegisterType CPU::getLo(RegisterType regType) const
 		throw std::invalid_argument("Invalid register type");
 	}
 }
-
 
 void CPU::setRegisterValue(RegisterType regType, uint16_t value)
 {

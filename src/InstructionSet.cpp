@@ -21,607 +21,776 @@ void InstructionSet::executeInstruction(uint8_t opCode)
     {
     case 0x00:
         nop();
+        m_cpu->ForwardPC(1);
         break;
     case 0x01:
         ld(Reg::BC, dataWord);
-        m_cpu->ForwardPC(2);
+        m_cpu->ForwardPC(3);
         break;
     case 0x02:
-		ldAddress(Reg::BC, Reg::A);
+        ldAddress(Reg::BC, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x03:
         inc(Reg::BC);
+        m_cpu->ForwardPC(1);
         break;
     case 0x04:
-		inc(Reg::B);
+        inc(Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x05:
         dec(Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x06:
         ld(Reg::B, dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0x07:
         rl(Reg::A, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x08:
         ldAddress(dataWord, Reg::SP);
-        m_cpu->ForwardPC(2);
+        m_cpu->ForwardPC(3);
         break;
     case 0x09:
         add(Reg::HL, Reg::BC, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x0A:
         ldAddress(Reg::A, Reg::BC);
+        m_cpu->ForwardPC(1);
         break;
     case 0x0B:
         dec(Reg::BC);
+        m_cpu->ForwardPC(1);
         break;
     case 0x0C:
         inc(Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0x0D:
         dec(Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0x0E:
         ld(Reg::C, dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0x0F:
         rr(Reg::A, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x10:
         stop();
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0x11:
-        ld(Reg::DE, dataWord);      
-        m_cpu->ForwardPC(2);
+        ld(Reg::DE, dataWord);
+        m_cpu->ForwardPC(3);
         break;
     case 0x12:
         ldAddress(Reg::DE, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x13:
         inc(Reg::DE);
+        m_cpu->ForwardPC(1);
         break;
     case 0x14:
         inc(Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0x15:
         dec(Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0x16:
         ld(Reg::D, dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0x17:
         rl(Reg::A, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x18:
         jr(dataByte);
-        m_cpu->ForwardPC(1);
         break;
     case 0x19:
         add(Reg::HL, Reg::DE, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x1A:
         ldAddress(Reg::A, Reg::DE);
+        m_cpu->ForwardPC(1);
         break;
     case 0x1B:
         dec(Reg::DE);
+        m_cpu->ForwardPC(1);
         break;
     case 0x1C:
         inc(Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0x1D:
         dec(Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0x1E:
         ld(Reg::E, dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0x1F:
         rr(Reg::A, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x20:
-        jr(!m_cpu->getZeroFlag(),dataByte);
-        m_cpu->ForwardPC(1);
+        jr(!m_cpu->getZeroFlag(), dataByte);
         break;
     case 0x21:
         ld(Reg::DE, dataWord);
-        m_cpu->ForwardPC(2);
-        break; 
+        m_cpu->ForwardPC(3);
+        break;
     case 0x22:
-        ldAddress(Reg::HL,Reg::A);
+        ldAddress(Reg::HL, Reg::A);
         inc(Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x23:
         inc(Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x24:
         inc(Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0x25:
         dec(Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0x26:
         ld(Reg::H, dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0x27:
         daa();
+        m_cpu->ForwardPC(1);
         break;
     case 0x28:
-        jr(m_cpu->getZeroFlag(),dataByte);
-        m_cpu->ForwardPC(1);
+        jr(m_cpu->getZeroFlag(), dataByte);
         break;
     case 0x29:
         add(Reg::HL, Reg::HL, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x2A:
         ldAddress(Reg::A, Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x2B:
         dec(Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x2C:
         inc(Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0x2D:
         dec(Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0x2E:
         ld(Reg::L, dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0x2F:
         cpl();
+        m_cpu->ForwardPC(1);
         break;
     case 0x30:
         jr(!m_cpu->getCarryFlag(), dataByte);
-        m_cpu->ForwardPC(1);
         break;
     case 0x31:
         ld(Reg::SP, dataWord);
-        m_cpu->ForwardPC(2);
+        m_cpu->ForwardPC(3);
         break;
     case 0x32:
         ldAddress(Reg::SP, Reg::A);
         dec(Reg::SP);
+        m_cpu->ForwardPC(1);
         break;
     case 0x33:
         inc(Reg::SP);
+        m_cpu->ForwardPC(1);
         break;
     case 0x34:
         incAddress(Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x35:
         dec(Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x36:
         ldAddress(Reg::HL, dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0x37:
         scf();
+        m_cpu->ForwardPC(1);
         break;
     case 0x38:
         jr(m_cpu->getCarryFlag(), dataByte);
-        m_cpu->ForwardPC(1);
         break;
     case 0x39:
         add(Reg::HL, Reg::SP, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x3A:
         ldAddress(Reg::A, Reg::HL);
         dec(Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x3B:
         dec(Reg::SP);
+        m_cpu->ForwardPC(1);
         break;
     case 0x3C:
         inc(Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x3D:
         dec(Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x3E:
         ld(Reg::A, dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0x3F:
         ccf();
-        break;
+        m_cpu->ForwardPC(1);
     case 0x40:
         ld(Reg::B, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x41:
         ld(Reg::C, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x42:
         ld(Reg::D, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x43:
         ld(Reg::E, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x44:
         ld(Reg::H, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x45:
-        ld(Reg::H, Reg::B);        
+        ld(Reg::H, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x46:
         ldAddress(Reg::B, Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x47:
         ld(Reg::B, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x48:
         ld(Reg::C, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x49:
         ld(Reg::C, Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0x4A:
         ld(Reg::C, Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0x4B:
         ld(Reg::C, Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0x4C:
         ld(Reg::C, Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0x4D:
         ld(Reg::C, Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0x4E:
         ldAddress(Reg::C, Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x4F:
         ld(Reg::C, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x50:
         ld(Reg::D, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x51:
         ld(Reg::D, Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0x52:
         ld(Reg::D, Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0x53:
         ld(Reg::D, Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0x54:
         ld(Reg::D, Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0x55:
         ld(Reg::D, Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0x56:
         ldAddress(Reg::D, Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x57:
         ld(Reg::D, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x58:
         ld(Reg::E, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x59:
         ld(Reg::E, Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0x5A:
         ld(Reg::E, Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0x5B:
         ld(Reg::E, Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0x5C:
         ld(Reg::E, Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0x5D:
         ld(Reg::E, Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0x5E:
         ldAddress(Reg::E, Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x5F:
         ld(Reg::E, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x60:
         ld(Reg::H, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x61:
         ld(Reg::H, Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0x62:
         ld(Reg::H, Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0x63:
         ld(Reg::H, Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0x64:
         ld(Reg::H, Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0x65:
         ld(Reg::H, Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0x66:
         ldAddress(Reg::H, Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x67:
         ld(Reg::H, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x68:
         ld(Reg::L, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x69:
         ld(Reg::L, Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0x6A:
         ld(Reg::L, Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0x6B:
         ld(Reg::L, Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0x6C:
         ld(Reg::L, Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0x6D:
         ld(Reg::L, Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0x6E:
         ldAddress(Reg::L, Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x6F:
         ld(Reg::L, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x70:
         ldAddress(Reg::HL, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x71:
         ldAddress(Reg::HL, Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0x72:
         ldAddress(Reg::HL, Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0x73:
         ldAddress(Reg::HL, Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0x74:
         ldAddress(Reg::HL, Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0x75:
         ldAddress(Reg::HL, Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0x76:
         halt();
+        m_cpu->ForwardPC(1);
         break;
     case 0x77:
         ldAddress(Reg::HL, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x78:
         ld(Reg::A, Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0x79:
         ld(Reg::A, Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0x7A:
         ld(Reg::A, Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0x7B:
         ld(Reg::A, Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0x7C:
         ld(Reg::A, Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0x7D:
         ld(Reg::A, Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0x7E:
         ldAddress(Reg::A, Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0x7F:
         ld(Reg::A, Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0x80:
         add(Reg::A, Reg::B, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x81:
         add(Reg::A, Reg::C, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x82:
         add(Reg::A, Reg::D, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x83:
         add(Reg::A, Reg::E, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x84:
         add(Reg::A, Reg::H, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x85:
         add(Reg::A, Reg::L, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x86:
         add(Reg::A, m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)), false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x87:
         add(Reg::A, Reg::A, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x88:
         add(Reg::A, Reg::B, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x89:
         add(Reg::A, Reg::C, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x8A:
         add(Reg::A, Reg::D, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x8B:
         add(Reg::A, Reg::E, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x8C:
         add(Reg::A, Reg::H, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x8D:
         add(Reg::A, Reg::L, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x8E:
         add(Reg::A, m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)), true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x8F:
         add(Reg::A, Reg::A, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x90:
-        sub(Reg::A, false);
+        sub(Reg::B, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x91:
         sub(Reg::C, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x92:
         sub(Reg::D, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x93:
         sub(Reg::E, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x94:
         sub(Reg::H, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x95:
         sub(Reg::L, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x96:
         sub(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)), false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x97:
         sub(Reg::A, false);
+        m_cpu->ForwardPC(1);
         break;
     case 0x98:
         sub(Reg::B, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x99:
         sub(Reg::C, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x9A:
         sub(Reg::D, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x9B:
         sub(Reg::E, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x9C:
         sub(Reg::H, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x9D:
         sub(Reg::L, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x9E:
         sub(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)), true);
+        m_cpu->ForwardPC(1);
         break;
     case 0x9F:
         sub(Reg::A, true);
+        m_cpu->ForwardPC(1);
         break;
     case 0xA0:
         andOp(Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0xA1:
         andOp(Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0xA2:
         andOp(Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0xA3:
         andOp(Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0xA4:
         andOp(Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0xA5:
         andOp(Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0xA6:
-        andOp(Reg::B);
+        andOp(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)));
+        m_cpu->ForwardPC(1);
         break;
     case 0xA7:
-        andOp(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)));
+        andOp(Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0xA8:
         xorOp(Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0xA9:
         xorOp(Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0xAA:
         xorOp(Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0xAB:
         xorOp(Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0xAC:
         xorOp(Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0xAD:
         xorOp(Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0xAE:
         xorOp(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)));
+        m_cpu->ForwardPC(1);
         break;
     case 0xAF:
         xorOp(Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0xB0:
         orOp(Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0xB1:
         orOp(Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0xB2:
         orOp(Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0xB3:
         orOp(Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0xB4:
         orOp(Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0xB5:
         orOp(Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0xB6:
         orOp(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)));
+        m_cpu->ForwardPC(1);
         break;
     case 0xB7:
         orOp(Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0xB8:
         cp(Reg::B);
+        m_cpu->ForwardPC(1);
         break;
     case 0xB9:
         cp(Reg::C);
+        m_cpu->ForwardPC(1);
         break;
     case 0xBA:
         cp(Reg::D);
+        m_cpu->ForwardPC(1);
         break;
     case 0xBB:
         cp(Reg::E);
+        m_cpu->ForwardPC(1);
         break;
     case 0xBC:
         cp(Reg::H);
+        m_cpu->ForwardPC(1);
         break;
     case 0xBD:
         cp(Reg::L);
+        m_cpu->ForwardPC(1);
         break;
     case 0xBE:
         cp(m_mmu->readByte(m_cpu->getRegisterValue<uint16_t>(Reg::HL)));
+        m_cpu->ForwardPC(1);
         break;
     case 0xBF:
         cp(Reg::A);
+        m_cpu->ForwardPC(1);
         break;
     case 0xC0:
         ret(!m_cpu->getZeroFlag());
+        m_cpu->ForwardPC(1);
         break;
     case 0xC1:
         pop(Reg::BC);
+        m_cpu->ForwardPC(1);
         break;
     case 0xC2:
         jp(!m_cpu->getZeroFlag(), dataWord);
@@ -630,179 +799,197 @@ void InstructionSet::executeInstruction(uint8_t opCode)
         jp(true, dataWord);
         break;
     case 0xC4:
-        call(!m_cpu->getZeroFlag(), m_mmu->readWord(dataWord));
+        call(!m_cpu->getZeroFlag(), dataWord);
+        m_cpu->ForwardPC(3);
         break;
     case 0xC5:
         push(Reg::BC);
+        m_cpu->ForwardPC(1);
         break;
     case 0xC6:
         add(Reg::A, dataByte, false);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0xC7:
-        //rst $00
-        call(true, m_mmu->readWord(0x00));
+        call(true, m_mmu->readWord(0x00)); // rst $00
+        m_cpu->ForwardPC(1);
         break;
     case 0xC8:
         ret(m_cpu->getZeroFlag());
+        m_cpu->ForwardPC(1);
         break;
     case 0xC9:
         ret(true);
+        m_cpu->ForwardPC(1);
         break;
     case 0xCA:
         jp(m_cpu->getZeroFlag(), dataWord);
         break;
     case 0xCB:
-        cb(dataWord) ;
+        cb(dataWord);
+        m_cpu->ForwardPC(2);
         break;
     case 0xCC:
         call(m_cpu->getZeroFlag(), dataWord);
-        m_cpu->ForwardPC(2);
+        m_cpu->ForwardPC(3);
         break;
     case 0xCD:
         call(true, dataWord);
-        m_cpu->ForwardPC(2);
+        m_cpu->ForwardPC(3);
         break;
     case 0xCE:
         add(Reg::A, dataByte, true);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0xCF:
-        //rst $08
-        call(true, m_mmu->readWord(0x08));
+        call(true, m_mmu->readWord(0x08)); // rst $08
+        m_cpu->ForwardPC(1);
         break;
     case 0xD0:
         ret(!m_cpu->getCarryFlag());
+        m_cpu->ForwardPC(1);
         break;
     case 0xD1:
         pop(Reg::DE);
+        m_cpu->ForwardPC(1);
         break;
     case 0xD2:
         jp(!m_cpu->getCarryFlag(), dataWord);
         break;
     case 0xD4:
         call(!m_cpu->getCarryFlag(), dataWord);
-        m_cpu->ForwardPC(2);
+        m_cpu->ForwardPC(3);
         break;
     case 0xD5:
         push(Reg::DE);
+        m_cpu->ForwardPC(1);
         break;
     case 0xD6:
         sub(dataByte, false);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0xD7:
-        //rst $10
-        call(true, m_mmu->readWord(0x10));
+        call(true, m_mmu->readWord(0x10)); // rst $10
+        m_cpu->ForwardPC(1);
         break;
     case 0xD8:
         ret(m_cpu->getCarryFlag());
+        m_cpu->ForwardPC(1);
         break;
     case 0xD9:
         ei();
         ret(true);
+        m_cpu->ForwardPC(1);
         break;
     case 0xDA:
-        jp(Reg::C, dataWord);
+        jp(m_cpu->getCarryFlag(), dataWord);
         break;
     case 0xDC:
         call(m_cpu->getCarryFlag(), dataWord);
+        m_cpu->ForwardPC(3);
         break;
     case 0xDE:
-        //sbc A, n8
-        sub(dataByte, true);
-        m_cpu->ForwardPC(1);
+        sub(dataByte, true); // sbc A, n8
+        m_cpu->ForwardPC(2);
         break;
     case 0xDF:
-        //rst $18
-        call(true, m_mmu->readWord(0x18));
+        call(true, m_mmu->readWord(0x18)); // rst $18
+        m_cpu->ForwardPC(1);
         break;
     case 0xE0:
         ldh(dataByte, false);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0xE1:
         pop(Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0xE2:
         ldh(dataByte, false);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0xE5:
         push(Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0xE6:
         andOp(dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0xE7:
-        //rst $20
-        call(true, m_mmu->readWord(0x20));
+        call(true, m_mmu->readWord(0x20)); // rst $20
+        m_cpu->ForwardPC(1);
         break;
     case 0xE8:
         add(Reg::SP, dataByte, false);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0xE9:
         jp(m_cpu->getCarryFlag(), dataWord);
         break;
     case 0xEA:
         ldAddress(dataWord, Reg::A);
-        m_cpu->ForwardPC(2);
+        m_cpu->ForwardPC(3);
         break;
     case 0xEE:
         xorOp(dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0xEF:
-        //rst $28
-        call(true, m_mmu->readWord(0x28));
+        call(true, m_mmu->readWord(0x28)); // rst $28
+        m_cpu->ForwardPC(1);
         break;
     case 0xF0:
         ldh(dataByte, true);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0xF1:
         pop(Reg::AF);
+        m_cpu->ForwardPC(1);
         break;
     case 0xF2:
         ldh(dataByte, true);
+        m_cpu->ForwardPC(2);
         break;
     case 0xF3:
         di();
+        m_cpu->ForwardPC(1);
         break;
     case 0xF5:
         push(Reg::AF);
+        m_cpu->ForwardPC(1);
         break;
     case 0xF6:
         orOp(dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
-    case 0xF7: 
-        //rst $30
-        call(true, m_mmu->readWord(0x30));        
+    case 0xF7:
+        call(true, m_mmu->readWord(0x30)); // rst $30
+        m_cpu->ForwardPC(1);
         break;
     case 0xF8:
-        ld(Reg::HL, Reg::SP,dataByte);
-        m_cpu->ForwardPC(1);
+        ld(Reg::HL, Reg::SP, dataByte);
+        m_cpu->ForwardPC(2);
         break;
     case 0xF9:
         ld(Reg::SP, Reg::HL);
+        m_cpu->ForwardPC(1);
         break;
     case 0xFA:
         ld(Reg::A, dataWord);
-        m_cpu->ForwardPC(2);
+        m_cpu->ForwardPC(3);
         break;
     case 0xFB:
         ei();
+        m_cpu->ForwardPC(1);
         break;
     case 0xFE:
         cp(dataByte);
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
         break;
     case 0xFF:
-        //rst $38
-        call(true, m_mmu->readWord(0x38));         
+        call(true, m_mmu->readWord(0x38)); // rst $38
+        m_cpu->ForwardPC(1);
         break;
     default:
         throw std::invalid_argument("Invalid Operation code");
@@ -1670,8 +1857,7 @@ void InstructionSet::jp(bool condition, uint16_t address)
 {
     if (condition)
     {
-        //address-1 to account for the PC++ at fetching 
-        m_cpu->setPC(address-1);
+        m_cpu->setPC(address);
     }
 }
 
@@ -1680,14 +1866,13 @@ void InstructionSet::jr(bool cc, int8_t destination)
     if (cc)
         jr(destination);
     else
-        m_cpu->ForwardPC(1);
+        m_cpu->ForwardPC(2);
 }
 
 void InstructionSet::jr(int8_t offset)
 {
     assert(offset >= -128 && offset <= 127);
-    //address-1 to account for the PC++ at fetching 
-    m_cpu->setPC(m_cpu->getPC() + offset - 1);
+    m_cpu->setPC(m_cpu->getPC() + offset);
 }
 
 void InstructionSet::call(bool condition,uint16_t address)

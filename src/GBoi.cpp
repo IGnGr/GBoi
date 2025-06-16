@@ -19,6 +19,7 @@ GBoi::GBoi(const char* filename)
 	m_mmu = make_shared<MMU>(m_game);
 	m_cpu = make_shared<CPU>(m_mmu);
 	m_cpu->initialize();
+	m_ppu->initialize();
 
 }
 
@@ -29,4 +30,5 @@ GBoi::~GBoi()
 void GBoi::run()
 {
 	m_cpu->execute();
+	m_ppu->renderFrame();
 }

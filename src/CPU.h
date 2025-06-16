@@ -58,14 +58,41 @@ private:
 
 
 
-public:
-    CPU();
-    CPU(std::shared_ptr<MMU> mmu);
-    ~CPU();
-	void execute();
-	void fetchNextInstruction();
-    void executeNextInstruction();
-	void decodeNextInstruction();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	enum RegisterType
 	{

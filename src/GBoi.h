@@ -7,6 +7,7 @@
 #include "GameROM.h"
 #include "CPU.h"
 #include "MMU.h"
+#include "PPU.h"
 
 class GBoi
 {
@@ -14,6 +15,7 @@ private:
 	std::shared_ptr<GameROM> m_game;
 	std::shared_ptr<CPU> m_cpu;
 	std::shared_ptr<MMU> m_mmu;
+	std::shared_ptr<PPU> m_ppu;
 
 
 
