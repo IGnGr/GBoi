@@ -9,12 +9,52 @@ constexpr unsigned int GB_SCREEN_HEIGHT = 256;
 constexpr unsigned int GB_VISIBLE_WIDHT = 160;
 constexpr unsigned int GB_VISIBLE_HEIGHT = 144;
 
+class Color {
+
+
+public:
+	Color() {}
+	uint8_t red;
+	uint8_t green;
+	uint8_t blue;
+	uint8_t alpha;
+
+	static constexpr Color White() { return Color(255, 255, 255); };
+	static constexpr Color LightGrey() { return Color(196, 196, 196); };
+	static constexpr Color DarkGrey() { return Color(65, 65, 65); };
+	static constexpr Color Black() { return Color(0, 0, 0); };
+
+	constexpr Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255)
+		: red(red), green(green), blue(blue), alpha(alpha) {
+	}
+
+
+};
+
+class Palette {
+
+
+
+public:
+	Palette() {}
+	Color zero;
+	Color one;
+	Color two;
+	Color three;
+
+	static constexpr Palette GB() { return Palette(Color::White(), Color::LightGrey(), Color::DarkGrey(), Color::Black()); };
+
+	constexpr Palette(Color zero, Color one, Color two, Color three)
+		:zero(zero), one(one), two(two), three(three) {
+	}
+};
+
 class PPU
 {
 
 
 private:
-	Palette m_palette = Palette::GB();
+	Palette m_palette;
 	std::shared_ptr<MMU> m_mmu;
 	unsigned int m_internalWidth = GB_SCREEN_WIDTH;
 	unsigned int m_internalHeight = GB_SCREEN_HEIGHT;
@@ -22,54 +62,25 @@ private:
 	unsigned int m_backgroundViewportX = 0;
 
 public:
-	PPU(std::shared_ptr<MMU> mmu) : m_mmu(mmu) {};
+	PPU(std::shared_ptr<MMU> mmu) : m_palette(Palette::GB()), m_mmu(mmu) {};
 	~PPU() {};
 	void renderFrame();
 	void initialize();
 
 };
 
-struct Layer {
+class Layer {
 
-	TileMap m_tilemap;
+	//TileMap m_tilemap;
 	enum class LayerType { BACKGROUND, WINDOW };
 
 };
 
 
-struct Color {
-
-	static constexpr Color White() { return Color(255, 255, 255); };
-	static constexpr Color LightGrey() { return Color(196, 196, 196); };
-	static constexpr Color DarkGrey() { return Color(65, 65, 65); };
-	static constexpr Color Black() { return Color(0, 0, 0); };
-	
-	constexpr Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) 
-		: red(red), green(green), blue(blue), alpha(alpha) {}
 
 
 
-	uint8_t red; 
-	uint8_t green;
-	uint8_t blue;
-	uint8_t alpha;
-};
-
-struct Palette {
-
-	static constexpr Palette GB() { return Palette(Color::White(), Color::LightGrey(), Color::DarkGrey(), Color::Black()) };
-
-	constexpr Palette(Color zero, Color one, Color two, Color three)
-		:zero(zero), one(one), two(two), three(three) {}
-
-	Color zero;
-	Color one;
-	Color two;
-	Color three;
-};
-
-
-struct TileMap
+class TileMap
 {
 	//Tile VRAM range - 0x8000-0x97FF
 	// 8000-87FF: First part of tile set #1
