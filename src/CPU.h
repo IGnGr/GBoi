@@ -6,14 +6,12 @@
 #include <vector>
 #include <cstdint> 
 #include "MMU.h"
-
+#include <stdexcept>
 
 class InstructionSet;
  
 class CPU : public std::enable_shared_from_this<CPU>
 {
-
-
 
 	struct Register
 	{
@@ -26,35 +24,6 @@ class CPU : public std::enable_shared_from_this<CPU>
 		void setLo(uint8_t lo) { value = (value & 0xFF00) | lo; }
 
 	};
-
-	
-
-private:
-	//Program Counter
-	uint16_t m_PC = 0;
-
-
-	//Stack Pointer
-	Register m_SP;
-
-	//Accumulator & Flags
-	Register m_AF;
-
-	//General Purpose Registers
-	Register m_BC;
-	Register m_DE;
-	Register m_HL;
-
-	uint8_t m_clock = 0;
-
-	bool m_interruptsFlag = false;
-	bool m_isHalted = false;
-
-	uint8_t m_currentInstruction = 0;
-
-	std::shared_ptr<InstructionSet> m_instructionSet;
-	std::shared_ptr<MMU> m_mmu;
-	std::shared_ptr<GameROM> m_game;
 
 
 public:
@@ -78,7 +47,55 @@ public:
 	void initialize();
 	uint16_t getPC() const { return m_PC; }
 	template <typename T>
-	T getRegisterValue(RegisterType regType) const;
+	T getRegisterValue(RegisterType regType) const
+	{
+		if constexpr (std::is_same_v<T, uint16_t>)
+		{
+			switch (regType)
+			{
+			case AF:
+				return m_AF.value;
+			case BC:
+				return m_BC.value;
+			case DE:
+				return m_DE.value;
+			case HL:
+				return m_HL.value;
+			case SP:
+				return m_SP.value;
+			default:
+				throw std::invalid_argument("Invalid register type");
+			}
+		}
+		else if constexpr (std::is_same_v<T, uint8_t>)
+		{
+			switch (regType)
+			{
+			case A:
+				return m_AF.getHi();
+			case F:
+				return m_AF.getLo();
+			case B:
+				return m_BC.getHi();
+			case C:
+				return m_BC.getLo();
+			case D:
+				return m_DE.getHi();
+			case E:
+				return m_DE.getLo();
+			case H:
+				return m_HL.getHi();
+			case L:
+				return m_HL.getLo();
+			default:
+				throw std::invalid_argument("Invalid register type");
+			}
+		}
+		else
+		{
+			throw std::invalid_argument("Invalid return type");
+		}
+	}
 
 	uint16_t getZeroFlag() const { return m_AF.getLo() >> 7 & 1; }
 	uint16_t getSubstractFlag() const { return m_AF.getLo() >> 6 & 1; }
@@ -104,5 +121,35 @@ public:
 	void setPC(uint16_t value) { m_PC = value; }
 	void ForwardPC(uint16_t steps) { m_PC += steps; }
 	bool isDoubleRegister(RegisterType regType);
+
+
+
+
+private:
+	//Program Counter
+	uint16_t m_PC = 0;
+
+
+	//Stack Pointer
+	Register m_SP;
+
+	//Accumulator & Flags
+	Register m_AF;
+
+	//General Purpose Registers
+	Register m_BC;
+	Register m_DE;
+	Register m_HL;
+
+	unsigned int m_clock = 0;
+
+	bool m_interruptsFlag = false;
+	bool m_isHalted = false;
+
+	uint8_t m_currentInstruction = 0;
+
+	std::shared_ptr<InstructionSet> m_instructionSet;
+	std::shared_ptr<MMU> m_mmu;
+	std::shared_ptr<GameROM> m_game;
 
 };

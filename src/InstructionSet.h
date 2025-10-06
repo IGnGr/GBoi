@@ -10,11 +10,6 @@ using Reg = CPU::RegisterType;
 
 class InstructionSet
 {
-private:
-
-	std::shared_ptr<MMU> m_mmu;
-    std::shared_ptr<CPU> m_cpu;
-
 
 public:
     InstructionSet(std::shared_ptr<CPU> cpu, std::shared_ptr<MMU> mmu);
@@ -98,4 +93,11 @@ public:
     void ccf();
     //setCarryFlag
     void scf();
+
+private:
+
+    std::shared_ptr<MMU> m_mmu;
+    std::shared_ptr<CPU> m_cpu;
+
+
 };

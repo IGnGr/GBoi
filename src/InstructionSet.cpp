@@ -15,7 +15,7 @@ InstructionSet::~InstructionSet()
 void InstructionSet::executeInstruction(uint8_t opCode)
 {
 	uint16_t dataWord = m_mmu->readWord(m_cpu->getPC() + 1);
-    uint8_t dataByte = m_mmu->readWord(m_cpu->getPC() + 1);
+    uint8_t dataByte = m_mmu->readByte(m_cpu->getPC() + 1);
 
     switch (opCode)
     {

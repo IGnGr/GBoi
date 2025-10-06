@@ -4,20 +4,6 @@
 
 class GameROM
 {
-private:
-
-	std::vector<uint8_t> m_content;
-	std::vector<uint8_t> m_header;
-	std::string m_titleName;
-	bool m_CGBMode;
-	bool m_SGBMode;
-	uint8_t m_cartridgeType;
-	uint8_t m_ROMSize;
-	uint8_t m_RAMSize;
-
-
-
-
 
 public:
 	GameROM() {};
@@ -29,4 +15,15 @@ public:
 	std::vector<uint8_t> getContent() const { return m_content; }
 	uint8_t getROMSize() const { return m_ROMSize; }
 	uint8_t getCartridgeType() const { return m_cartridgeType; }
+
+private:
+
+	std::vector<uint8_t> m_content;
+	std::vector<uint8_t> m_header;
+	std::string m_titleName;
+	bool m_CGBMode;
+	bool m_SGBMode;
+	uint8_t m_cartridgeType;
+	uint8_t m_ROMSize;
+	uint8_t m_RAMSize;
 };

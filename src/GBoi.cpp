@@ -2,6 +2,7 @@
 //
 
 #include "GBoi.h"
+#include <SDL3/SDL.h>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ GBoi::GBoi(const char* filename)
 	m_cpu = make_shared<CPU>(m_mmu);
 	m_cpu->initialize();
 	m_ppu->initialize();
-
+	
 }
 
 GBoi::~GBoi()

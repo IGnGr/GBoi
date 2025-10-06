@@ -53,6 +53,14 @@ class PPU
 {
 
 
+public:
+	PPU(std::shared_ptr<MMU> mmu) : m_palette(Palette::GB()), m_mmu(std::move(mmu)) {};
+	~PPU() {};
+	void renderFrame();
+	void initialize();                                                                   
+
+
+
 private:
 	Palette m_palette;
 	std::shared_ptr<MMU> m_mmu;
@@ -60,12 +68,6 @@ private:
 	unsigned int m_internalHeight = GB_SCREEN_HEIGHT;
 	unsigned int m_backgroundViewportY = 0;
 	unsigned int m_backgroundViewportX = 0;
-
-public:
-	PPU(std::shared_ptr<MMU> mmu) : m_palette(Palette::GB()), m_mmu(mmu) {};
-	~PPU() {};
-	void renderFrame();
-	void initialize();
 
 };
 

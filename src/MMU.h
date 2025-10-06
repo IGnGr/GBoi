@@ -8,13 +8,6 @@
 
 class MMU
 {
-private:
-	std::vector<uint8_t> m_memory;
-
-	//Game ROM
-	std::shared_ptr<GameROM> m_game;
-
-	std::unique_ptr<MBC> m_mbc;
 
 public:
 	MMU(std::shared_ptr<GameROM> game);
@@ -28,5 +21,14 @@ public:
 	uint8_t readByte(uint16_t address);
 	void setWord(uint16_t address, uint16_t value);
 	void setByte(uint16_t address, uint8_t value);
+
+private:
+	std::vector<uint8_t> m_memory;
+
+	//Game ROM
+	std::shared_ptr<GameROM> m_game;
+
+	std::unique_ptr<MBC> m_mbc;
+
 
 };

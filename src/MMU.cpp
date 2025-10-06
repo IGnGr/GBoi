@@ -4,11 +4,10 @@
 #include <cassert>
 
 
-MMU::MMU(std::shared_ptr<GameROM> game)
+MMU::MMU(std::shared_ptr<GameROM> game) : m_game(std::move(game))
 {
-	m_game = game;
 	initialize();
-	}
+}
 
 void MMU::initialize()
 {

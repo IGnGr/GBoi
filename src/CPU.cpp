@@ -10,7 +10,7 @@ CPU::CPU()
 
 
 
-CPU::CPU(std::shared_ptr<MMU> mmu) : m_mmu(mmu)
+CPU::CPU(std::shared_ptr<MMU> mmu) : m_mmu(std::move(mmu))
 {
 
 
@@ -73,56 +73,6 @@ void CPU::initialize()
 }
 
 
-template <typename T>
-T CPU::getRegisterValue(RegisterType regType) const
-{
-	if constexpr (std::is_same_v<T, uint16_t>)
-	{
-		switch (regType)
-		{
-		case AF:
-			return m_AF.value;
-		case BC:
-			return m_BC.value;
-		case DE:
-			return m_DE.value;
-		case HL:
-			return m_HL.value;
-		case SP:
-			return m_SP.value;
-		default:
-			throw std::invalid_argument("Invalid register type");
-		}
-	}
-	else if constexpr (std::is_same_v<T, uint8_t>)
-	{
-		switch (regType)
-		{
-		case A:
-			return m_AF.getHi();
-		case F:
-			return m_AF.getLo();
-		case B:
-			return m_BC.getHi();
-		case C:
-			return m_BC.getLo();
-		case D:
-			return m_DE.getHi();
-		case E:
-			return m_DE.getLo();
-		case H:
-			return m_HL.getHi();
-		case L:
-			return m_HL.getLo();
-		default:
-			throw std::invalid_argument("Invalid register type");
-		}
-	}
-	else
-	{
-		throw std::invalid_argument("Invalid return type");
-	}
-}
 
 CPU::RegisterType CPU::getHi(RegisterType regType) const
 {
@@ -224,19 +174,18 @@ bool CPU::isDoubleRegister(RegisterType regType)
 
 void CPU::printState() const
 {
-	std::cout << "-------- New Cycle ------------" << std::hex << std::endl;
-	std::cout << "A				 : " << getRegisterValue<uint8_t>(A) << std::endl;
-	std::cout << "AF			 : " << getRegisterValue<uint16_t>(AF) << std::endl;
-	std::cout << "BC			 : " << getRegisterValue<uint16_t>(BC) << std::endl;
-	std::cout << "DE			 : " << getRegisterValue<uint16_t>(DE) << std::endl;
-	std::cout << "HL			 : " << getRegisterValue<uint16_t>(HL) << std::endl;
-	std::cout << "SP			 : " << getRegisterValue<uint16_t>(SP) << std::endl;
-	std::cout << "PC			 : " << m_PC << std::endl;
-	std::cout << "Clock	  		 : " << m_clock << std::endl;
-	std::cout << "Zero Flag      : " << getZeroFlag() << std::endl;
-	std::cout << "Carry Flag     : " << getCarryFlag() << std::endl;
-	std::cout << "Half Carry Flag: " << getHalfCarryFlag() << std::endl;
-	std::cout << "Subtract Flag	 : " << getSubstractFlag() << std::endl;
+	std::cout << "-------- New Cycle ------------" << std::endl;
+	std::cout << "Clock	  		  : " << std::dec << m_clock << std::endl;
+	std::cout << "AF			  : " << std::hex << getRegisterValue<uint16_t>(AF) << std::endl;
+	std::cout << "BC			  : " << getRegisterValue<uint16_t>(BC) << std::endl;
+	std::cout << "DE			  : " << getRegisterValue<uint16_t>(DE) << std::endl;
+	std::cout << "HL			  : " << getRegisterValue<uint16_t>(HL) << std::endl;
+	std::cout << "SP			  : " << getRegisterValue<uint16_t>(SP) << std::endl;
+	std::cout << "PC			  : " << m_PC << std::endl;
+	std::cout << "Zero Flag       : " << getZeroFlag() << std::endl;
+	std::cout << "Carry Flag      : " << getCarryFlag() << std::endl;
+	std::cout << "Half Carry Flag : " << getHalfCarryFlag() << std::endl;
+	std::cout << "Subtract Flag	: " << getSubstractFlag() << std::endl;
 	std::cout << "-------------------------------" << std::endl;
 	std::cout << "								 " << std::endl;
 
