@@ -15,6 +15,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 # Add source to this project's executable.
 add_subdirectory(vendor)
 add_subdirectory(src)
+target_include_directories(GBoi PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET GBoi PROPERTY CXX_STANDARD 20)
