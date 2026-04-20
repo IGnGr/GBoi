@@ -16,9 +16,10 @@ int main()
 
 GBoi::GBoi(const char* filename)
 {
-	m_game = make_shared<GameROM>(filename);
-	m_mmu = make_shared<MMU>(m_game);
-	m_cpu = make_shared<CPU>(m_mmu);
+	m_game = std::make_shared<GameROM>(filename);
+	m_mmu = std::make_shared<MMU>(m_game);
+	m_cpu = std::make_shared<CPU>(m_mmu);
+	m_ppu = std::make_shared<PPU>(m_mmu);
 	m_cpu->initialize();
 	m_ppu->initialize();
 	

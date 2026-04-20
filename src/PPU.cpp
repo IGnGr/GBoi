@@ -27,8 +27,16 @@ void PPU::refreshTileMemory()
 	// 8000-87FF: First part of tile set #1
 	//8800 - 8FFF: Second part of tile set #1 / First part of tile set #2
 	//9000 - 97FF: Second part of tile set  #2
+	
+	const auto& mem = m_mmu->getMemory();
 
-	//std::copy(m_mmu->getMemory()[0x800], m_mmu->getMemory()[0x97FF], m_tileMap);
+	for (int i = 0; i < TOTAL_TILES_NUM; ++i) {
+		int base = 0x8000 + i * BYTES_PER_TILE - 0x8000;
+		for (int j = 0; j < BYTES_PER_TILE; ++j) {
+			m_tileMap[i].m_TileBytes[j] = mem[base + j];
+		}
+	}
+
 
 }
 

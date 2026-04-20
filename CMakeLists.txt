@@ -10,7 +10,12 @@ if (POLICY CMP0141)
 endif()
 
 project (GBoi)
+# set base runtime output to the current binary dir				
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+# For multi-config generators (Visual Studio) also override per-config directories
+# so that Visual Studio does not append an extra Config subfolder to the binary dir.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR})
 
 # Add source to this project's executable.
 add_subdirectory(vendor)
